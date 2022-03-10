@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ContentView: View {
     private var store: HealthStore?
-    @State private var steps = [Step]()
+    @State private var allSteps = [Steps]()
     
     init() {
         store = HealthStore()
@@ -14,17 +14,17 @@ struct ContentView: View {
         let endDate = Date()
         collection.enumerateStatistics(from: startDate, to: endDate) { (statistics, stop) in
             let count = statistics.sumQuantity()?.doubleValue(for: .count())
-            let step = Step(count: Int(count ?? 0), date: statistics.startDate)
-            steps.append(step)
+            let step = Steps(count: Int(count ?? 0), date: statistics.startDate)
+            allSteps.append(step)
         }
     }
     
     var body: some View {
         NavigationView {
-            List(steps, id: \.id) { step in
+            List(allSteps, id: \.id) { steps in
                 VStack(alignment: .leading) {
-                    Text("\(step.count)")
-                    Text(step.date, style: .date).opacity(0.5)
+                    Text("\(steps.count)")
+                    Text(steps.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("HealthKit Demo")
         }
