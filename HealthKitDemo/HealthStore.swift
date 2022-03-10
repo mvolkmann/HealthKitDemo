@@ -13,7 +13,7 @@ class HealthStore {
         }
     }
     
-    func calculateSteps(completion: @escaping (HKStatisticsCollection?) -> Void) {
+    func querySteps(completion: @escaping (HKStatisticsCollection?) -> Void) {
         let stepCount = HKQuantityType.quantityType(
             forIdentifier: HKQuantityTypeIdentifier.stepCount)!
         let startDate = Calendar.current.date(byAdding: .day, value: -7, to: Date())
