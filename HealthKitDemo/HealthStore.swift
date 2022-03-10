@@ -13,10 +13,36 @@ class HealthStore {
         }
     }
     
+    func queryHeart(completion: @escaping (HKStatisticsCollection?) -> Void) {
+        let heartRate = HKQuantityType.quantityType(
+            forIdentifier: HKQuantityTypeIdentifier.heartRate)!
+        let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
+        let anchorDate = Date.mondayAt12AM()
+        let daily = DateComponents(day: 1)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: startDate,
+            end: Date(),
+            options: .strictStartDate
+        )
+        query = HKStatisticsCollectionQuery(
+            quantityType: heartRate,
+            quantitySamplePredicate: predicate,
+            options: .discreteAverage,
+            anchorDate: anchorDate,
+            intervalComponents: daily
+        )
+        query!.initialResultsHandler = { query, collection, error in
+            completion(collection)
+        }
+        if let store = store, let query = query {
+            store.execute(query)
+        }
+    }
+    
     func querySteps(completion: @escaping (HKStatisticsCollection?) -> Void) {
         let stepCount = HKQuantityType.quantityType(
             forIdentifier: HKQuantityTypeIdentifier.stepCount)!
-        let startDate = Calendar.current.date(byAdding: .day, value: -7, to: Date())
+        let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
         let anchorDate = Date.mondayAt12AM()
         let daily = DateComponents(day: 1)
         let predicate = HKQuery.predicateForSamples(

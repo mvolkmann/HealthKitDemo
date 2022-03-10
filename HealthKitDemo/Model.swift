@@ -2,7 +2,7 @@ import Foundation
 
 struct HeartRate: Identifiable {
     let id = UUID()
-    let bpm: Int
+    let bpm: Double
     let date: Date
 }
 

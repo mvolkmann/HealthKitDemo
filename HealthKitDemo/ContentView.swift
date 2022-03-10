@@ -3,29 +3,47 @@ import SwiftUI
 
 struct ContentView: View {
     private var store: HealthStore?
+    @State private var heartData = [HeartRate]()
     @State private var stepData = [Steps]()
     
     init() {
         store = HealthStore()
     }
     
-    private func updateUI(_ collection: HKStatisticsCollection) {
-        let startDate = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-        let endDate = Date()
-        collection.enumerateStatistics(from: startDate, to: endDate) { (statistics, stop) in
-            print("statistics = \(statistics)")
-            let count = statistics.sumQuantity()?.doubleValue(for: .count())
-            let step = Steps(count: Int(count ?? 0), date: statistics.startDate)
+    private func updateHeartData(_ collection: HKStatisticsCollection) {
+        for statistic in collection.statistics() {
+            var bpm = 0.0
+            if let quantity = statistic.averageQuantity() {
+                bpm = quantity.doubleValue(
+                    for: HKUnit.count().unitDivided(by: HKUnit.minute())
+                )
+            }
+            let heartRate = HeartRate(bpm: bpm, date: statistic.startDate)
+            heartData.append(heartRate)
+        }
+    }
+    
+    private func updateStepData(_ collection: HKStatisticsCollection) {
+        for statistic in collection.statistics() {
+            let count = statistic.sumQuantity()?.doubleValue(for: .count())
+            let step = Steps(count: Int(count ?? 0), date: statistic.startDate)
             stepData.append(step)
         }
     }
     
     var body: some View {
         NavigationView {
+            /*
             List(stepData, id: \.id) { steps in
                 VStack(alignment: .leading) {
                     Text("\(steps.count)")
                     Text(steps.date, style: .date).opacity(0.5)
+                }
+            */
+            List(heartData, id: \.id) { heartRate in
+                VStack(alignment: .leading) {
+                    Text("\(heartRate.bpm)")
+                    Text(heartRate.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("HealthKit Demo")
         }
@@ -33,9 +51,14 @@ struct ContentView: View {
                 guard let store = store else { return }
                 store.requestAuthorization { success in
                     if success {
+                        store.queryHeart { collection in
+                            if let collection = collection {
+                               updateHeartData(collection)
+                            }
+                        }
                         store.querySteps { collection in
                             if let collection = collection {
-                               updateUI(collection)
+                               updateStepData(collection)
                             }
                         }
                     }
