@@ -21,25 +21,25 @@ class HealthStore {
     
     func query(
         typeId: HKQuantityTypeIdentifier,
-        options: HKStatisticsOptions,
-        completion: @escaping (HKStatisticsCollection?) -> Void
-    ) {
-        let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
-        let predicate = HKQuery.predicateForSamples(
-            withStart: startDate,
-            end: Date(),
-            options: .strictStartDate
-        )
-        let q = HKStatisticsCollectionQuery(
-            quantityType: quantityType(typeId),
-            quantitySamplePredicate: predicate,
-            options: options,
-            anchorDate: Date.mondayAt12AM(),
-            intervalComponents: DateComponents(day: 1)
-        )
-        q.initialResultsHandler = { query, collection, error in completion(collection) }
-        hkStore!.execute(q)
-    }
+        options: HKStatisticsOptions) async -> HKStatisticsCollection? {
+            let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
+            let predicate = HKQuery.predicateForSamples(
+                withStart: startDate,
+                end: Date(),
+                options: .strictStartDate
+            )
+            let q = HKStatisticsCollectionQuery(
+                quantityType: quantityType(typeId),
+                quantitySamplePredicate: predicate,
+                options: options,
+                anchorDate: Date.mondayAt12AM(),
+                intervalComponents: DateComponents(day: 1)
+            )
+            return await withCheckedContinuation { continuation in
+                q.initialResultsHandler = { query, collection, error in continuation.resume(returning: collection) }
+                hkStore!.execute(q)
+            }
+        }
     
     func queryCharacteristics() async -> Characteristics? {
         guard let hkStore = hkStore else { return nil }
@@ -61,12 +61,12 @@ class HealthStore {
         }
     }
     
-    func queryCycling(completion: @escaping (HKStatisticsCollection?) -> Void) {
-        query(typeId: .distanceCycling, options: .cumulativeSum, completion: completion)
+    func queryCycling() async -> HKStatisticsCollection? {
+        return await query(typeId: .distanceCycling, options: .cumulativeSum)
     }
     
-    func queryHeart(completion: @escaping (HKStatisticsCollection?) -> Void) {
-        query(typeId: .heartRate, options: .discreteAverage, completion: completion)
+    func queryHeart() async -> HKStatisticsCollection? {
+        return await query(typeId: .heartRate, options: .discreteAverage)
     }
     
     func queryQuantity(
@@ -87,8 +87,8 @@ class HealthStore {
             }
         }
     
-    func querySteps(completion: @escaping (HKStatisticsCollection?) -> Void) {
-        query(typeId: .stepCount, options: .cumulativeSum, completion: completion)
+    func querySteps() async -> HKStatisticsCollection? {
+        return await query(typeId: .stepCount, options: .cumulativeSum)
     }
     
     func requestAuthorization() async throws -> Bool {

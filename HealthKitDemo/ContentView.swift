@@ -70,20 +70,19 @@ struct ContentView: View {
         if try await store.requestAuthorization() {
             characteristics = await store.queryCharacteristics()
             
-            store.queryCycling { collection in
-                if let collection = collection {
-                   updateCyclingData(collection)
-                }
+            var collection = await store.queryCycling()
+            if let collection = collection {
+               updateCyclingData(collection)
             }
-            store.queryHeart { collection in
-                if let collection = collection {
-                   updateHeartData(collection)
-                }
+            
+            collection = await store.queryHeart()
+            if let collection = collection {
+               updateHeartData(collection)
             }
-            store.querySteps { collection in
-                if let collection = collection {
-                   updateStepData(collection)
-                }
+            
+            collection = await store.querySteps()
+            if let collection = collection {
+               updateStepData(collection)
             }
         }
     }
