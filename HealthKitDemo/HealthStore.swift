@@ -11,7 +11,11 @@ class HealthStore {
         hkStore = HKHealthStore()
     }
     
-    private func getType(_ typeId: HKQuantityTypeIdentifier) -> HKQuantityType {
+    private func characteristicType(_ typeId: HKCharacteristicTypeIdentifier) -> HKCharacteristicType {
+        return HKCharacteristicType.characteristicType(forIdentifier: typeId)!
+    }
+    
+    private func quantityType(_ typeId: HKQuantityTypeIdentifier) -> HKQuantityType {
         return HKQuantityType.quantityType(forIdentifier: typeId)!
     }
     
@@ -27,7 +31,7 @@ class HealthStore {
             options: .strictStartDate
         )
         let q = HKStatisticsCollectionQuery(
-            quantityType: getType(typeId),
+            quantityType: quantityType(typeId),
             quantitySamplePredicate: predicate,
             options: options,
             anchorDate: Date.mondayAt12AM(),
@@ -35,6 +39,15 @@ class HealthStore {
         )
         q.initialResultsHandler = { query, collection, error in completion(collection) }
         hkStore!.execute(q)
+    }
+    
+    func queryCharacteristics(completion: @escaping (Characteristics) -> Void) {
+        do {
+            let sex = try hkStore!.biologicalSex()
+            completion(Characteristics(sex: sex.biologicalSex))
+        } catch {
+            print("error: \(error)")
+        }
     }
     
     func queryCycling(completion: @escaping (HKStatisticsCollection?) -> Void) {
@@ -55,9 +68,10 @@ class HealthStore {
         store.requestAuthorization(
             toShare: [], // not updating any health data
             read: [
-              getType(.distanceCycling),
-              getType(.heartRate),
-              getType(.stepCount)
+              characteristicType(.biologicalSex),
+              quantityType(.distanceCycling),
+              quantityType(.heartRate),
+              quantityType(.stepCount)
             ]) {
             (success, error) in completion(success)
         }

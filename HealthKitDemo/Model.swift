@@ -1,4 +1,9 @@
 import Foundation
+import HealthKit
+
+struct Characteristics {
+    let sex: HKBiologicalSex
+}
 
 struct Cycling: Identifiable {
     let id = UUID()

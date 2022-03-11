@@ -62,6 +62,21 @@ struct ContentView: View {
             let store = try HealthStore()
             store.requestAuthorization { success in
                 if success {
+                    store.queryCharacteristics { characteristics in
+                        switch characteristics.sex {
+                        case HKBiologicalSex.female:
+                            print("female")
+                        case HKBiologicalSex.male:
+                            print("male")
+                        case HKBiologicalSex.other:
+                            print("other")
+                        case HKBiologicalSex.notSet:
+                            print("not set")
+                        @unknown default:
+                            <#fatalError()#>
+                        }
+                    }
+                    
                     store.queryCycling { collection in
                         if let collection = collection {
                            updateCyclingData(collection)
