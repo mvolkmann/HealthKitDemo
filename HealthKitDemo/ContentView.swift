@@ -43,24 +43,24 @@ struct ContentView: View {
     @State private var stepData = [Steps]()
     
     private func getData() {
-        let store = HealthStore()
-        if store.hkStore == nil {
-            print("Health data is not available.")
-            return
-        }
-        store.requestAuthorization { success in
-            if success {
-                store.queryHeart { collection in
-                    if let collection = collection {
-                       updateHeartData(collection)
+        do {
+            let store = try HealthStore()
+            store.requestAuthorization { success in
+                if success {
+                    store.queryHeart { collection in
+                        if let collection = collection {
+                           updateHeartData(collection)
+                        }
                     }
-                }
-                store.querySteps { collection in
-                    if let collection = collection {
-                       updateStepData(collection)
+                    store.querySteps { collection in
+                        if let collection = collection {
+                           updateStepData(collection)
+                        }
                     }
                 }
             }
+        } catch {
+            print("error: \(error.localizedDescription)")
         }
     }
  

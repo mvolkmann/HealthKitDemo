@@ -18,6 +18,7 @@
 		1AD95D8C27DAA4E80068979E /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AD95D8B27DAA4E80068979E /* HealthKit.framework */; };
 		1AD95D8E27DAA62A0068979E /* DateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D8D27DAA62A0068979E /* DateExtensions.swift */; };
 		1AD95D9027DAAA130068979E /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D8F27DAAA130068979E /* Model.swift */; };
+		1AD95D9627DBBF120068979E /* RuntimeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D9527DBBF120068979E /* RuntimeError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		1AD95D8B27DAA4E80068979E /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		1AD95D8D27DAA62A0068979E /* DateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensions.swift; sourceTree = "<group>"; };
 		1AD95D8F27DAAA130068979E /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		1AD95D9527DBBF120068979E /* RuntimeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +110,7 @@
 				1AD95D8927DAA4E80068979E /* HealthKitDemo.entitlements */,
 				1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */,
 				1AD95D2727DA9DB50068979E /* ContentView.swift */,
+				1AD95D9527DBBF120068979E /* RuntimeError.swift */,
 				1AD95D4F27DA9EB90068979E /* HealthStore.swift */,
 				1AD95D8D27DAA62A0068979E /* DateExtensions.swift */,
 				1AD95D2927DA9DB70068979E /* Assets.xcassets */,
@@ -283,6 +286,7 @@
 				1AD95D9027DAAA130068979E /* Model.swift in Sources */,
 				1AD95D2827DA9DB50068979E /* ContentView.swift in Sources */,
 				1AD95D8E27DAA62A0068979E /* DateExtensions.swift in Sources */,
+				1AD95D9627DBBF120068979E /* RuntimeError.swift in Sources */,
 				1AD95D5027DA9EB90068979E /* HealthStore.swift in Sources */,
 				1AD95D2627DA9DB50068979E /* HealthKitDemoApp.swift in Sources */,
 			);

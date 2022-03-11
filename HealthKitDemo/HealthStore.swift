@@ -5,11 +5,11 @@ class HealthStore {
     var query: HKStatisticsCollectionQuery?
     var hkStore: HKHealthStore?
     
-    init() {
+    init() throws {
         if HKHealthStore.isHealthDataAvailable() {
             hkStore = HKHealthStore()
         } else {
-            print("Health data is not available.")
+            throw RuntimeError("Health data is not available.")
         }
     }
     
