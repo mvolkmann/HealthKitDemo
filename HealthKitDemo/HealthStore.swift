@@ -66,7 +66,7 @@ class HealthStore {
     }
     
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
-        guard let store = self.store else { return completion(false) }
+        guard let store = store else { return completion(false) }
         
         let heartRate = HKQuantityType.quantityType(
             forIdentifier: HKQuantityTypeIdentifier.heartRate)!

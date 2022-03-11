@@ -39,16 +39,11 @@ struct HealthTab: View {
 }
 
 struct ContentView: View {
-    private var store: HealthStore?
     @State private var heartData = [HeartRate]()
     @State private var stepData = [Steps]()
     
-    init() {
-        store = HealthStore()
-    }
-    
     private func getData() {
-        guard let store = store else { return }
+        let store = HealthStore()
         store.requestAuthorization { success in
             if success {
                 store.queryHeart { collection in
