@@ -9,7 +9,7 @@ struct CharacteristicsPage: View {
                 if let data = data {
                     Text("Sex: \(data.sex)")
                     Text("Date of Birth: \(data.dateOfBirthFormatted)")
-                    Text("Height: \(data.height) inches")
+                    Text("Height: \(data.heightInImperial)")
                 }
             }.navigationTitle("Characteristics")
         }.navigationViewStyle(.stack) //TODO: Why needed?

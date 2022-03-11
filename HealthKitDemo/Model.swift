@@ -12,7 +12,13 @@ struct Characteristics {
         return dateFormatter.string(from: dateOfBirth)
     }
     
-    let height: Double
+    let heightInMeters: Double
+    var heightInImperial: String {
+        let totalInches = heightInMeters * 39.3701;
+        let feet = totalInches / 12;
+        let inches = totalInches.truncatingRemainder(dividingBy: 12);
+        return "\(Int(floor(feet)))' \(Int(inches.rounded()))\""
+    }
     
     let sexEnum: HKBiologicalSex
     

@@ -49,7 +49,8 @@ class HealthStore {
             queryQuantity(typeId: .height) { height in
                 completion(Characteristics(
                     dateOfBirth: dobComponents.date,
-                    height: height == nil ? 0 : height!.doubleValue(for: .inch()),
+                    //height: height == nil ? 0 : height!.doubleValue(for: .inch()),
+                    heightInMeters: height == nil ? 0 : height!.doubleValue(for: .meter()),
                     sexEnum: sex.biologicalSex
                 ))
             }
