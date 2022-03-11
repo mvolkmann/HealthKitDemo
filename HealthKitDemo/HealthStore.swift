@@ -3,11 +3,11 @@ import HealthKit
 
 class HealthStore {
     var query: HKStatisticsCollectionQuery?
-    var store: HKHealthStore?
+    var hkStore: HKHealthStore?
     
     init() {
         if HKHealthStore.isHealthDataAvailable() {
-            store = HKHealthStore()
+            hkStore = HKHealthStore()
         } else {
             print("Health data is not available.")
         }
@@ -34,7 +34,7 @@ class HealthStore {
         query!.initialResultsHandler = { query, collection, error in
             completion(collection)
         }
-        if let store = store, let query = query {
+        if let store = hkStore, let query = query {
             store.execute(query)
         }
     }
@@ -60,13 +60,13 @@ class HealthStore {
         query!.initialResultsHandler = { query, collection, error in
             completion(collection)
         }
-        if let store = store, let query = query {
+        if let store = hkStore, let query = query {
             store.execute(query)
         }
     }
     
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
-        guard let store = store else { return completion(false) }
+        guard let store = hkStore else { return completion(false) }
         
         let heartRate = HKQuantityType.quantityType(
             forIdentifier: HKQuantityTypeIdentifier.heartRate)!

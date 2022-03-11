@@ -44,6 +44,10 @@ struct ContentView: View {
     
     private func getData() {
         let store = HealthStore()
+        if store.hkStore == nil {
+            print("Health data is not available.")
+            return
+        }
         store.requestAuthorization { success in
             if success {
                 store.queryHeart { collection in
