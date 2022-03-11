@@ -33,20 +33,22 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            /*
             List(stepData, id: \.id) { steps in
                 VStack(alignment: .leading) {
                     Text("\(steps.count)")
                     Text(steps.date, style: .date).opacity(0.5)
                 }
-            */
+            }.navigationTitle("HealthKit Demo")
+            /*
             List(heartData, id: \.id) { heartRate in
                 VStack(alignment: .leading) {
-                    Text("\(heartRate.bpm)")
+                    Text(String(format: "%.1f", heartRate.bpm))
                     Text(heartRate.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("HealthKit Demo")
+            */
         }
+            .navigationViewStyle(.stack) //TODO: Why needed?
             .onAppear {
                 guard let store = store else { return }
                 store.requestAuthorization { success in
