@@ -1,13 +1,27 @@
 import HealthKit
 import SwiftUI
 
-struct HeartPage: View {
-    var heartData: [HeartRate];
+struct CyclingPage: View {
+    var data: [Cycling];
     var body: some View {
         NavigationView {
-            List(heartData, id: \.id) { heartRate in
+            List(data, id: \.id) { cycling in
                 VStack(alignment: .leading) {
-                    Text(String(format: "%.1f", heartRate.bpm))
+                    Text(String(format: "%.1f miles", cycling.distance))
+                    Text(cycling.date, style: .date).opacity(0.5)
+                }
+            }.navigationTitle("Cycling Data")
+        }.navigationViewStyle(.stack) //TODO: Why needed?
+    }
+}
+
+struct HeartPage: View {
+    var data: [HeartRate];
+    var body: some View {
+        NavigationView {
+            List(data, id: \.id) { heartRate in
+                VStack(alignment: .leading) {
+                    Text(String(format: "%.0f bpm", heartRate.bpm))
                     Text(heartRate.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("Heart Data")
@@ -16,12 +30,12 @@ struct HeartPage: View {
 }
 
 struct WalkRunPage: View {
-    var stepData: [Steps];
+    var data: [Steps];
     var body: some View {
         NavigationView {
-            List(stepData, id: \.id) { steps in
+            List(data, id: \.id) { steps in
                 VStack(alignment: .leading) {
-                    Text("\(steps.count)")
+                    Text("\(steps.count) steps")
                     Text(steps.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("Step Data")
@@ -39,6 +53,7 @@ struct HealthTab: View {
 }
 
 struct ContentView: View {
+    @State private var cyclingData = [Cycling]()
     @State private var heartData = [HeartRate]()
     @State private var stepData = [Steps]()
     
@@ -47,6 +62,11 @@ struct ContentView: View {
             let store = try HealthStore()
             store.requestAuthorization { success in
                 if success {
+                    store.queryCycling { collection in
+                        if let collection = collection {
+                           updateCyclingData(collection)
+                        }
+                    }
                     store.queryHeart { collection in
                         if let collection = collection {
                            updateHeartData(collection)
@@ -64,6 +84,14 @@ struct ContentView: View {
         }
     }
  
+    private func updateCyclingData(_ collection: HKStatisticsCollection) {
+        for statistic in collection.statistics() {
+            let miles = statistic.sumQuantity()?.doubleValue(for: .mile())
+            let cycling = Cycling(distance: Double(miles ?? 0), date: statistic.startDate)
+            cyclingData.append(cycling)
+        }
+    }
+    
     private func updateHeartData(_ collection: HKStatisticsCollection) {
         for statistic in collection.statistics() {
             var bpm = 0.0
@@ -91,15 +119,15 @@ struct ContentView: View {
                 Image(systemName: "info.circle.fill")
                 Text("Characteristics")
             }
-            HeartPage(heartData: heartData).tabItem {
+            HeartPage(data: heartData).tabItem {
                 Image(systemName: "heart.fill")
                 Text("Heart")
             }
-            WalkRunPage(stepData: stepData).tabItem {
+            WalkRunPage(data: stepData).tabItem {
                 Image(systemName: "figure.walk")
                 Text("Walking/Running")
             }
-            HealthTab(kind: "Cycling").tabItem {
+            CyclingPage(data: cyclingData).tabItem {
                 Image(systemName: "bicycle")
                 Text("Cycling")
             }

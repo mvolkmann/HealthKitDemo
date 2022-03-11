@@ -1,5 +1,11 @@
 import Foundation
 
+struct Cycling: Identifiable {
+    let id = UUID()
+    let distance: Double
+    let date: Date
+}
+
 struct HeartRate: Identifiable {
     let id = UUID()
     let bpm: Double
