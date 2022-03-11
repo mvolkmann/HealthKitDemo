@@ -20,11 +20,7 @@ class HealthStore {
         options: HKStatisticsOptions,
         completion: @escaping (HKStatisticsCollection?) -> Void
     ) {
-        guard let store = hkStore else { return }
-        
         let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
-        let anchorDate = Date.mondayAt12AM()
-        let daily = DateComponents(day: 1)
         let predicate = HKQuery.predicateForSamples(
             withStart: startDate,
             end: Date(),
@@ -34,11 +30,11 @@ class HealthStore {
             quantityType: getType(typeId),
             quantitySamplePredicate: predicate,
             options: options,
-            anchorDate: anchorDate,
-            intervalComponents: daily
+            anchorDate: Date.mondayAt12AM(),
+            intervalComponents: DateComponents(day: 1)
         )
         q.initialResultsHandler = { query, collection, error in completion(collection) }
-        store.execute(q)
+        hkStore!.execute(q)
     }
     
     func queryCycling(completion: @escaping (HKStatisticsCollection?) -> Void) {
