@@ -1,6 +1,43 @@
 import HealthKit
 import SwiftUI
 
+struct HeartPage: View {
+    var heartData: [HeartRate];
+    var body: some View {
+        NavigationView {
+            List(heartData, id: \.id) { heartRate in
+                VStack(alignment: .leading) {
+                    Text(String(format: "%.1f", heartRate.bpm))
+                    Text(heartRate.date, style: .date).opacity(0.5)
+                }
+            }.navigationTitle("Heart Data")
+        }.navigationViewStyle(.stack) //TODO: Why needed?
+    }
+}
+
+struct WalkRunPage: View {
+    var stepData: [Steps];
+    var body: some View {
+        NavigationView {
+            List(stepData, id: \.id) { steps in
+                VStack(alignment: .leading) {
+                    Text("\(steps.count)")
+                    Text(steps.date, style: .date).opacity(0.5)
+                }
+            }.navigationTitle("Step Data")
+        }.navigationViewStyle(.stack) //TODO: Why needed?
+    }
+}
+
+struct HealthTab: View {
+    var kind: String
+
+    var body: some View {
+        Text("Information about \(kind) goes here.")
+            .navigationBarTitle(kind)
+    }
+}
+
 struct ContentView: View {
     private var store: HealthStore?
     @State private var heartData = [HeartRate]()
@@ -10,6 +47,24 @@ struct ContentView: View {
         store = HealthStore()
     }
     
+    private func getData() {
+        guard let store = store else { return }
+        store.requestAuthorization { success in
+            if success {
+                store.queryHeart { collection in
+                    if let collection = collection {
+                       updateHeartData(collection)
+                    }
+                }
+                store.querySteps { collection in
+                    if let collection = collection {
+                       updateStepData(collection)
+                    }
+                }
+            }
+        }
+    }
+ 
     private func updateHeartData(_ collection: HKStatisticsCollection) {
         for statistic in collection.statistics() {
             var bpm = 0.0
@@ -32,40 +87,30 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationView {
-            List(stepData, id: \.id) { steps in
-                VStack(alignment: .leading) {
-                    Text("\(steps.count)")
-                    Text(steps.date, style: .date).opacity(0.5)
-                }
-            }.navigationTitle("HealthKit Demo")
-            /*
-            List(heartData, id: \.id) { heartRate in
-                VStack(alignment: .leading) {
-                    Text(String(format: "%.1f", heartRate.bpm))
-                    Text(heartRate.date, style: .date).opacity(0.5)
-                }
-            }.navigationTitle("HealthKit Demo")
-            */
-        }
-            .navigationViewStyle(.stack) //TODO: Why needed?
-            .onAppear {
-                guard let store = store else { return }
-                store.requestAuthorization { success in
-                    if success {
-                        store.queryHeart { collection in
-                            if let collection = collection {
-                               updateHeartData(collection)
-                            }
-                        }
-                        store.querySteps { collection in
-                            if let collection = collection {
-                               updateStepData(collection)
-                            }
-                        }
-                    }
-                }
+        TabView {
+            HealthTab(kind: "Characteristics").tabItem {
+                Image(systemName: "info.circle.fill")
+                Text("Characteristics")
             }
+            HeartPage(heartData: heartData).tabItem {
+                Image(systemName: "heart.fill")
+                Text("Heart")
+            }
+            WalkRunPage(stepData: stepData).tabItem {
+                Image(systemName: "figure.walk")
+                Text("Walking/Running")
+            }
+            HealthTab(kind: "Cycling").tabItem {
+                Image(systemName: "bicycle")
+                Text("Cycling")
+            }
+        }
+        .onAppear() {
+            //UITabBar.appearance().backgroundColor = .systemGray5
+            getData()
+        }
+        // Change color of Image and Text views which defaults to blue.
+        //.accentColor(.purple)
     }
 }
 
