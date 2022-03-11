@@ -2,7 +2,21 @@ import Foundation
 import HealthKit
 
 struct Characteristics {
+    let dateOfBirth: Date?
+    
+    // Computed property
+    var dateOfBirthFormatted: String {
+        guard let dateOfBirth = dateOfBirth else { return "unknown" }
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        return dateFormatter.string(from: dateOfBirth)
+    }
+    
+    let height: Double
+    
     let sexEnum: HKBiologicalSex
+    
+    // Computed property
     var sex: String {
         switch sexEnum {
         case HKBiologicalSex.female:

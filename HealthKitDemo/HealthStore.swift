@@ -42,9 +42,17 @@ class HealthStore {
     }
     
     func queryCharacteristics(completion: @escaping (Characteristics) -> Void) {
+        guard let hkStore = hkStore else { return }
         do {
-            let sex = try hkStore!.biologicalSex()
-            completion(Characteristics(sexEnum: sex.biologicalSex))
+            let dobComponents = try hkStore.dateOfBirthComponents()
+            let sex = try hkStore.biologicalSex()
+            queryQuantity(typeId: .height) { height in
+                completion(Characteristics(
+                    dateOfBirth: dobComponents.date,
+                    height: height == nil ? 0 : height!.doubleValue(for: .inch()),
+                    sexEnum: sex.biologicalSex
+                ))
+            }
         } catch {
             print("error: \(error)")
         }
@@ -58,6 +66,27 @@ class HealthStore {
         query(typeId: .heartRate, options: .discreteAverage, completion: completion)
     }
     
+    func queryQuantity(
+        typeId: HKQuantityTypeIdentifier,
+        completion: @escaping (HKQuantity?) -> Void
+    ) {
+        guard let hkStore = hkStore else {
+            completion(nil)
+            return
+        }
+        
+        let type = quantityType(typeId)
+        let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: nil) {
+            (query, results, error) in
+            if let result = results?.first as? HKQuantitySample {
+                completion(result.quantity)
+            } else {
+                completion(nil)
+            }
+        }
+        hkStore.execute(query)
+    }
+    
     func querySteps(completion: @escaping (HKStatisticsCollection?) -> Void) {
         query(typeId: .stepCount, options: .cumulativeSum, completion: completion)
     }
@@ -69,8 +98,10 @@ class HealthStore {
             toShare: [], // not updating any health data
             read: [
               characteristicType(.biologicalSex),
+              characteristicType(.dateOfBirth),
               quantityType(.distanceCycling),
               quantityType(.heartRate),
+              quantityType(.height),
               quantityType(.stepCount)
             ]) {
             (success, error) in completion(success)

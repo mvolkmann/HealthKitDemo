@@ -8,6 +8,8 @@ struct CharacteristicsPage: View {
             VStack(alignment: .leading) {
                 if let data = data {
                     Text("Sex: \(data.sex)")
+                    Text("Date of Birth: \(data.dateOfBirthFormatted)")
+                    Text("Height: \(data.height) inches")
                 }
             }.navigationTitle("Characteristics")
         }.navigationViewStyle(.stack) //TODO: Why needed?
