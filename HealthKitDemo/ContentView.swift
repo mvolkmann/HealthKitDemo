@@ -10,6 +10,7 @@ struct CharacteristicsPage: View {
                     Text("Sex: \(data.sex)")
                     Text("Date of Birth: \(data.dateOfBirthFormatted)")
                     Text("Height: \(data.heightInImperial)")
+                    Text("Waist: \(String(format: "%.1f inches", data.waistInInches))")
                 }
             }.navigationTitle("Characteristics")
         }.navigationViewStyle(.stack) //TODO: Why needed?
@@ -64,34 +65,26 @@ struct ContentView: View {
     @State private var heartData = [HeartRate]()
     @State private var stepData = [Steps]()
     
-    private func getData() {
-        do {
-            let store = try HealthStore()
-            store.requestAuthorization { success in
-                if success {
-                    store.queryCharacteristics { chars in
-                        characteristics = chars
-                    }
-                    
-                    store.queryCycling { collection in
-                        if let collection = collection {
-                           updateCyclingData(collection)
-                        }
-                    }
-                    store.queryHeart { collection in
-                        if let collection = collection {
-                           updateHeartData(collection)
-                        }
-                    }
-                    store.querySteps { collection in
-                        if let collection = collection {
-                           updateStepData(collection)
-                        }
-                    }
+    private func getData() async throws {
+        let store = try HealthStore()
+        if try await store.requestAuthorization() {
+            characteristics = await store.queryCharacteristics()
+            
+            store.queryCycling { collection in
+                if let collection = collection {
+                   updateCyclingData(collection)
                 }
             }
-        } catch {
-            print("error: \(error.localizedDescription)")
+            store.queryHeart { collection in
+                if let collection = collection {
+                   updateHeartData(collection)
+                }
+            }
+            store.querySteps { collection in
+                if let collection = collection {
+                   updateStepData(collection)
+                }
+            }
         }
     }
  
@@ -145,7 +138,13 @@ struct ContentView: View {
         }
         .onAppear() {
             //UITabBar.appearance().backgroundColor = .systemGray5
-            getData()
+            Task {
+                do {
+                    try await getData()
+                } catch {
+                    print("error getting data: \(error.localizedDescription)")
+                }
+            }
         }
         // Change color of Image and Text views which defaults to blue.
         //.accentColor(.purple)

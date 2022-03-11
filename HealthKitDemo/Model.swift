@@ -35,6 +35,11 @@ struct Characteristics {
             return "other"
         }
     }
+    
+    var waistInMeters: Double
+    var waistInInches: Int {
+        return Int((waistInMeters * 39.3701).rounded())
+    }
 }
 
 struct Cycling: Identifiable {
