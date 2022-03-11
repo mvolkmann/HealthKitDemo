@@ -11,11 +11,17 @@ class HealthStore {
         hkStore = HKHealthStore()
     }
     
+    private func getType(_ typeId: HKQuantityTypeIdentifier) -> HKQuantityType {
+        return HKQuantityType.quantityType(forIdentifier: typeId)!
+    }
+    
     func query(
-        type: HKQuantityType,
+        typeId: HKQuantityTypeIdentifier,
         options: HKStatisticsOptions,
         completion: @escaping (HKStatisticsCollection?) -> Void
     ) {
+        guard let store = hkStore else { return }
+        
         let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
         let anchorDate = Date.mondayAt12AM()
         let daily = DateComponents(day: 1)
@@ -24,42 +30,39 @@ class HealthStore {
             end: Date(),
             options: .strictStartDate
         )
-        let query = HKStatisticsCollectionQuery(
-            quantityType: type,
+        let q = HKStatisticsCollectionQuery(
+            quantityType: getType(typeId),
             quantitySamplePredicate: predicate,
             options: options,
             anchorDate: anchorDate,
             intervalComponents: daily
         )
-        query.initialResultsHandler = { query, collection, error in completion(collection) }
-        if let store = hkStore { store.execute(query) }
+        q.initialResultsHandler = { query, collection, error in completion(collection) }
+        store.execute(q)
     }
     
     func queryCycling(completion: @escaping (HKStatisticsCollection?) -> Void) {
-        let type = HKQuantityType.quantityType(forIdentifier: .distanceCycling)!
-        query(type: type, options: .cumulativeSum, completion: completion)
+        query(typeId: .distanceCycling, options: .cumulativeSum, completion: completion)
     }
     
     func queryHeart(completion: @escaping (HKStatisticsCollection?) -> Void) {
-        let type = HKQuantityType.quantityType(forIdentifier: .heartRate)!
-        query(type: type, options: .discreteAverage, completion: completion)
+        query(typeId: .heartRate, options: .discreteAverage, completion: completion)
     }
     
     func querySteps(completion: @escaping (HKStatisticsCollection?) -> Void) {
-        let type = HKQuantityType.quantityType(forIdentifier: .stepCount)!
-        query(type: type, options: .cumulativeSum, completion: completion)
+        query(typeId: .stepCount, options: .cumulativeSum, completion: completion)
     }
     
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
         guard let store = hkStore else { return completion(false) }
         
-        let cycling = HKQuantityType.quantityType(forIdentifier: .distanceCycling)!
-        let heartRate = HKQuantityType.quantityType(forIdentifier: .heartRate)!
-        let stepCount = HKQuantityType.quantityType(forIdentifier: .stepCount)!
-        
         store.requestAuthorization(
-            toShare: [],
-            read: [cycling, heartRate, stepCount]) {
+            toShare: [], // not updating any health data
+            read: [
+              getType(.distanceCycling),
+              getType(.heartRate),
+              getType(.stepCount)
+            ]) {
             (success, error) in completion(success)
         }
     }
