@@ -2,7 +2,7 @@ import Foundation
 import HealthKit
 
 class HealthStore {
-    var query: HKStatisticsCollectionQuery?
+    //var query: HKStatisticsCollectionQuery?
     var hkStore: HKHealthStore?
     
     init() throws {
@@ -24,17 +24,17 @@ class HealthStore {
             end: Date(),
             options: .strictStartDate
         )
-        query = HKStatisticsCollectionQuery(
+        let query = HKStatisticsCollectionQuery(
             quantityType: heartRate,
             quantitySamplePredicate: predicate,
             options: .discreteAverage,
             anchorDate: anchorDate,
             intervalComponents: daily
         )
-        query!.initialResultsHandler = { query, collection, error in
+        query.initialResultsHandler = { query, collection, error in
             completion(collection)
         }
-        if let store = hkStore, let query = query {
+        if let store = hkStore {
             store.execute(query)
         }
     }
@@ -50,17 +50,17 @@ class HealthStore {
             end: Date(),
             options: .strictStartDate
         )
-        query = HKStatisticsCollectionQuery(
+        let query = HKStatisticsCollectionQuery(
             quantityType: stepCount,
             quantitySamplePredicate: predicate,
             options: .cumulativeSum,
             anchorDate: anchorDate,
             intervalComponents: daily
         )
-        query!.initialResultsHandler = { query, collection, error in
+        query.initialResultsHandler = { query, collection, error in
             completion(collection)
         }
-        if let store = hkStore, let query = query {
+        if let store = hkStore {
             store.execute(query)
         }
     }
