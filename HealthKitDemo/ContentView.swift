@@ -70,7 +70,6 @@ struct ContentView: View {
             store.requestAuthorization { success in
                 if success {
                     store.queryCharacteristics { chars in
-                        print(chars.sex)
                         characteristics = chars
                     }
                     

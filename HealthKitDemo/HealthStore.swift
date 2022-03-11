@@ -103,7 +103,8 @@ class HealthStore {
               quantityType(.distanceCycling),
               quantityType(.heartRate),
               quantityType(.height),
-              quantityType(.stepCount)
+              quantityType(.stepCount),
+              quantityType(.waistCircumference),
             ]) {
             (success, error) in completion(success)
         }
