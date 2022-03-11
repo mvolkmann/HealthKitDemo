@@ -44,7 +44,7 @@ class HealthStore {
     func queryCharacteristics(completion: @escaping (Characteristics) -> Void) {
         do {
             let sex = try hkStore!.biologicalSex()
-            completion(Characteristics(sex: sex.biologicalSex))
+            completion(Characteristics(sexEnum: sex.biologicalSex))
         } catch {
             print("error: \(error)")
         }

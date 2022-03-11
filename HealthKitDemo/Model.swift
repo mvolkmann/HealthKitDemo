@@ -2,7 +2,19 @@ import Foundation
 import HealthKit
 
 struct Characteristics {
-    let sex: HKBiologicalSex
+    let sexEnum: HKBiologicalSex
+    var sex: String {
+        switch sexEnum {
+        case HKBiologicalSex.female:
+            return "female"
+        case HKBiologicalSex.male:
+            return "male"
+        case HKBiologicalSex.notSet:
+            return "not set"
+        default:
+            return "other"
+        }
+    }
 }
 
 struct Cycling: Identifiable {

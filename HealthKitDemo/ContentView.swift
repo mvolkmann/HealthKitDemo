@@ -1,6 +1,19 @@
 import HealthKit
 import SwiftUI
 
+struct CharacteristicsPage: View {
+    var data: Characteristics?;
+    var body: some View {
+        NavigationView {
+            VStack(alignment: .leading) {
+                if let data = data {
+                    Text("Sex: \(data.sex)")
+                }
+            }.navigationTitle("Characteristics")
+        }.navigationViewStyle(.stack) //TODO: Why needed?
+    }
+}
+
 struct CyclingPage: View {
     var data: [Cycling];
     var body: some View {
@@ -43,16 +56,8 @@ struct WalkRunPage: View {
     }
 }
 
-struct HealthTab: View {
-    var kind: String
-
-    var body: some View {
-        Text("Information about \(kind) goes here.")
-            .navigationBarTitle(kind)
-    }
-}
-
 struct ContentView: View {
+    @State private var characteristics: Characteristics?
     @State private var cyclingData = [Cycling]()
     @State private var heartData = [HeartRate]()
     @State private var stepData = [Steps]()
@@ -62,19 +67,9 @@ struct ContentView: View {
             let store = try HealthStore()
             store.requestAuthorization { success in
                 if success {
-                    store.queryCharacteristics { characteristics in
-                        switch characteristics.sex {
-                        case HKBiologicalSex.female:
-                            print("female")
-                        case HKBiologicalSex.male:
-                            print("male")
-                        case HKBiologicalSex.other:
-                            print("other")
-                        case HKBiologicalSex.notSet:
-                            print("not set")
-                        @unknown default:
-                            <#fatalError()#>
-                        }
+                    store.queryCharacteristics { chars in
+                        print(chars.sex)
+                        characteristics = chars
                     }
                     
                     store.queryCycling { collection in
@@ -130,7 +125,7 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-            HealthTab(kind: "Characteristics").tabItem {
+            CharacteristicsPage(data: characteristics).tabItem {
                 Image(systemName: "info.circle.fill")
                 Text("Characteristics")
             }
