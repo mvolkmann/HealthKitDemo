@@ -19,9 +19,9 @@ class HealthStore {
         return HKQuantityType.quantityType(forIdentifier: typeId)!
     }
     
-    func queryAppleStats() async -> HKStatistics? {
-        //TODO: Finish this.
-        //return await query(typeId: .appleMoveTime, options: .mostRecent)
+    func queryAppleStats() async throws -> HKStatistics? {
+        let stats = try await queryOne(typeId: .appleMoveTime, options: .mostRecent)
+        print("stats = \(stats!)")
         return nil
     }
     
@@ -42,33 +42,34 @@ class HealthStore {
     
     func queryCollection(
         typeId: HKQuantityTypeIdentifier,
-        options: HKStatisticsOptions) async throws -> HKStatisticsCollection? {
-            guard let hkStore = hkStore else { return nil }
-            
-            let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
-            let predicate = HKQuery.predicateForSamples(
-                withStart: startDate,
-                end: Date(),
-                options: .strictStartDate
-            )
-            let q = HKStatisticsCollectionQuery(
-                quantityType: quantityType(typeId),
-                quantitySamplePredicate: predicate,
-                options: .mostRecent,
-                anchorDate: Date.mondayAt12AM(),
-                intervalComponents: DateComponents(day: 1)
-            )
-            return try await withCheckedThrowingContinuation { continuation in
-                q.initialResultsHandler = { _, collection, error in
-                    if let error = error {
-                        continuation.resume(throwing: error)
-                    } else {
-                        continuation.resume(returning: collection!)
-                    }
+        options: HKStatisticsOptions
+    ) async throws -> HKStatisticsCollection? {
+        guard let hkStore = hkStore else { return nil }
+        
+        let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
+        let predicate = HKQuery.predicateForSamples(
+            withStart: startDate,
+            end: Date(),
+            options: .strictStartDate
+        )
+        let q = HKStatisticsCollectionQuery(
+            quantityType: quantityType(typeId),
+            quantitySamplePredicate: predicate,
+            options: .mostRecent,
+            anchorDate: Date.mondayAt12AM(),
+            intervalComponents: DateComponents(day: 1)
+        )
+        return try await withCheckedThrowingContinuation { continuation in
+            q.initialResultsHandler = { _, collection, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume(returning: collection!)
                 }
-                hkStore.execute(q)
             }
+            hkStore.execute(q)
         }
+    }
     
     func queryCycling() async throws -> HKStatisticsCollection? {
         return try await queryCollection(typeId: .distanceCycling, options: .cumulativeSum)
@@ -78,30 +79,33 @@ class HealthStore {
         return try await queryCollection(typeId: .heartRate, options: .discreteAverage)
     }
     
-    /*
-    func queryOne() async -> Double? {
+    func queryOne(
+        typeId: HKQuantityTypeIdentifier,
+        options: HKStatisticsOptions
+    ) async throws -> HKStatistics? {
         guard let hkStore = hkStore else { return nil }
-        do {
-            let predicate = HKQuery.predicateForSamples(
-                withStart: Date(),
-                end: Date(),
-                options: .strictStartDate
-            )
-            let q = HKStatisticsCollectionQuery(
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: Date(),
+            end: Date(),
+            options: .strictStartDate
+        )
+        return try await withCheckedThrowingContinuation { continuation in
+            let q = HKStatisticsQuery(
                 quantityType: quantityType(.appleMoveTime),
                 quantitySamplePredicate: predicate,
                 options: .mostRecent,
-                anchorDate: Date.mondayAt12AM(),
-                intervalComponents: DateComponents(day: 1)
+                completionHandler: {_, value, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: value!)
+                    }
+                }
             )
-            let value = hkStore.execute(q)
-            return value
-        } catch {
-            print("error: \(error)")
-            return nil
+            hkStore.execute(q)
         }
     }
-    */
     
     func queryRestingHeart() async throws -> HKStatisticsCollection? {
         return try await queryCollection(typeId: .restingHeartRate, options: .discreteAverage)

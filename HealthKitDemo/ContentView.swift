@@ -69,6 +69,9 @@ struct ContentView: View {
         do {
             let store = try HealthStore()
             if try await store.requestAuthorization() {
+                let appleStats = try await store.queryAppleStats()
+                print("appleStats = \(appleStats!)")
+                
                 characteristics = try await store.queryCharacteristics()
                 
                 var collection = try await store.queryCycling()
