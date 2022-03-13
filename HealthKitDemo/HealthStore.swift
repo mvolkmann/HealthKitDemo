@@ -19,8 +19,8 @@ class HealthStore {
         return HKQuantityType.quantityType(forIdentifier: typeId)!
     }
     
-    func queryAppleStats() async throws -> HKStatistics? {
-        return try await queryOne(typeId: .appleMoveTime, options: .mostRecent)
+    func queryAppleStats() async -> HKStatistics? {
+        return await queryOne(typeId: .appleMoveTime, options: .mostRecent)
     }
     
     func queryCharacteristics() async throws -> Characteristics? {
