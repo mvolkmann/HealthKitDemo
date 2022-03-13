@@ -20,9 +20,7 @@ class HealthStore {
     }
     
     func queryAppleStats() async throws -> HKStatistics? {
-        let stats = try await queryOne(typeId: .appleMoveTime, options: .mostRecent)
-        print("stats = \(stats!)")
-        return nil
+        return try await queryOne(typeId: .appleMoveTime, options: .mostRecent)
     }
     
     func queryCharacteristics() async throws -> Characteristics? {
@@ -82,7 +80,7 @@ class HealthStore {
     func queryOne(
         typeId: HKQuantityTypeIdentifier,
         options: HKStatisticsOptions
-    ) async throws -> HKStatistics? {
+    ) async -> HKStatistics? {
         guard let hkStore = hkStore else { return nil }
         
         let predicate = HKQuery.predicateForSamples(
@@ -90,16 +88,16 @@ class HealthStore {
             end: Date(),
             options: .strictStartDate
         )
-        return try await withCheckedThrowingContinuation { continuation in
+        return await withCheckedContinuation { continuation in
             let q = HKStatisticsQuery(
                 quantityType: quantityType(.appleMoveTime),
                 quantitySamplePredicate: predicate,
                 options: .mostRecent,
                 completionHandler: {_, value, error in
-                    if let error = error {
-                        continuation.resume(throwing: error)
-                    } else {
+                    if error == nil {
                         continuation.resume(returning: value!)
+                    } else {
+                        continuation.resume(returning: nil)
                     }
                 }
             )
