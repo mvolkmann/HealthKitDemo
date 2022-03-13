@@ -23,17 +23,29 @@ class HealthStore {
         return await queryOne(typeId: .appleMoveTime, options: .mostRecent)
     }
     
-    func queryCharacteristics() async throws -> Characteristics? {
+    func queryCharacteristics() async -> Characteristics? {
         guard let hkStore = hkStore else { return nil }
         
-        let dobComponents = try hkStore.dateOfBirthComponents()
-        let sex = try hkStore.biologicalSex()
-        let height = try await queryQuantity(typeId: .height)
-        let waist = try await queryQuantity(typeId: .waistCircumference)
+        var dateOfBirth: Date? = nil
+        do {
+            dateOfBirth = try hkStore.dateOfBirthComponents().date
+        } catch {
+            // do nothing
+        }
+            
+        var sex = HKBiologicalSex.notSet
+        do {
+            sex = try hkStore.biologicalSex().biologicalSex
+        } catch {
+            // do nothing
+        }
+        
+        let height = await queryQuantity(typeId: .height)
+        let waist = await queryQuantity(typeId: .waistCircumference)
         return Characteristics(
-            dateOfBirth: dobComponents.date,
+            dateOfBirth: dateOfBirth,
             heightInMeters: height == nil ? 0 : height!.doubleValue(for: .meter()),
-            sexEnum: sex.biologicalSex,
+            sexEnum: sex,
             waistInMeters: waist == nil ? 0 : waist!.doubleValue(for: .meter())
         )
     }
@@ -41,7 +53,7 @@ class HealthStore {
     func queryCollection(
         typeId: HKQuantityTypeIdentifier,
         options: HKStatisticsOptions
-    ) async throws -> HKStatisticsCollection? {
+    ) async -> HKStatisticsCollection? {
         guard let hkStore = hkStore else { return nil }
         
         let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
@@ -57,24 +69,20 @@ class HealthStore {
             anchorDate: Date.mondayAt12AM(),
             intervalComponents: DateComponents(day: 1)
         )
-        return try await withCheckedThrowingContinuation { continuation in
+        return await withCheckedContinuation { continuation in
             q.initialResultsHandler = { _, collection, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume(returning: collection!)
-                }
+                continuation.resume(returning: collection)
             }
             hkStore.execute(q)
         }
     }
     
-    func queryCycling() async throws -> HKStatisticsCollection? {
-        return try await queryCollection(typeId: .distanceCycling, options: .cumulativeSum)
+    func queryCycling() async -> HKStatisticsCollection? {
+        return await queryCollection(typeId: .distanceCycling, options: .cumulativeSum)
     }
     
-    func queryHeart() async throws -> HKStatisticsCollection? {
-        return try await queryCollection(typeId: .heartRate, options: .discreteAverage)
+    func queryHeart() async -> HKStatisticsCollection? {
+        return await queryCollection(typeId: .heartRate, options: .discreteAverage)
     }
     
     func queryOne(
@@ -105,20 +113,20 @@ class HealthStore {
         }
     }
     
-    func queryRestingHeart() async throws -> HKStatisticsCollection? {
-        return try await queryCollection(typeId: .restingHeartRate, options: .discreteAverage)
+    func queryRestingHeart() async -> HKStatisticsCollection? {
+        return await queryCollection(typeId: .restingHeartRate, options: .discreteAverage)
     }
     
     func queryQuantity(
-        typeId: HKQuantityTypeIdentifier) async throws -> HKQuantity? {
+        typeId: HKQuantityTypeIdentifier) async -> HKQuantity? {
             guard let hkStore = hkStore else { return nil }
             
             let type = quantityType(typeId)
-            return try await withCheckedThrowingContinuation { continuation in
+            return await withCheckedContinuation { continuation in
                 let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: nil) {
                     (query1, results, error) in
-                    if let error = error {
-                        continuation.resume(throwing: error)
+                    if error == nil {
+                        continuation.resume(returning: nil)
                     } else if let result = results?.first as? HKQuantitySample {
                         continuation.resume(returning: result.quantity)
                     } else {
@@ -129,8 +137,8 @@ class HealthStore {
             }
         }
     
-    func querySteps() async throws -> HKStatisticsCollection? {
-        return try await queryCollection(typeId: .stepCount, options: .cumulativeSum)
+    func querySteps() async -> HKStatisticsCollection? {
+        return await queryCollection(typeId: .stepCount, options: .cumulativeSum)
     }
     
     func requestAuthorization() async throws -> Bool {

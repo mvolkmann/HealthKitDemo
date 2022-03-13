@@ -69,31 +69,31 @@ struct ContentView: View {
         do {
             let store = try HealthStore()
             if try await store.requestAuthorization() {
-                let appleStats = try await store.queryAppleStats()
+                let appleStats = await store.queryAppleStats()
                 if let appleStats = appleStats {
                     print("appleStats = \(appleStats)")
                 } else {
                     print("no appleStats")
                 }
                 
-                characteristics = try await store.queryCharacteristics()
+                characteristics = await store.queryCharacteristics()
                 
-                var collection = try await store.queryCycling()
+                var collection = await store.queryCycling()
                 if let collection = collection {
                    updateCyclingData(collection)
                 }
                 
-                collection = try await store.queryHeart()
+                collection = await store.queryHeart()
                 if let collection = collection {
                    updateHeartData(collection)
                 }
                 
-                collection = try await store.queryRestingHeart()
+                collection = await store.queryRestingHeart()
                 if let collection = collection {
                   updateRestingHeartData(collection)
                 }
                 
-                collection = try await store.querySteps()
+                collection = await store.querySteps()
                 if let collection = collection {
                    updateStepData(collection)
                 }
