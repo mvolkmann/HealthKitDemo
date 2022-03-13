@@ -20,6 +20,7 @@ class HealthStore {
     }
     
     func queryAppleStats() async -> HKStatistics? {
+        //TODO: Why doesn't this return a value?
         return await queryOne(typeId: .appleMoveTime, options: .mostRecent)
     }
     
