@@ -66,24 +66,33 @@ struct ContentView: View {
     @State private var stepData = [Steps]()
     
     private func getData() async throws {
-        let store = try HealthStore()
-        if try await store.requestAuthorization() {
-            characteristics = await store.queryCharacteristics()
-            
-            var collection = await store.queryCycling()
-            if let collection = collection {
-               updateCyclingData(collection)
+        do {
+            let store = try HealthStore()
+            if try await store.requestAuthorization() {
+                characteristics = try await store.queryCharacteristics()
+                
+                var collection = try await store.queryCycling()
+                if let collection = collection {
+                   updateCyclingData(collection)
+                }
+                
+                collection = try await store.queryHeart()
+                if let collection = collection {
+                   updateHeartData(collection)
+                }
+                
+                collection = try await store.queryRestingHeart()
+                if let collection = collection {
+                  updateRestingHeartData(collection)
+                }
+                
+                collection = try await store.querySteps()
+                if let collection = collection {
+                   updateStepData(collection)
+                }
             }
-            
-            collection = await store.queryHeart()
-            if let collection = collection {
-               updateHeartData(collection)
-            }
-            
-            collection = await store.querySteps()
-            if let collection = collection {
-               updateStepData(collection)
-            }
+        } catch {
+            print("error: \(error)")
         }
     }
  
@@ -105,6 +114,22 @@ struct ContentView: View {
             }
             let heartRate = HeartRate(bpm: bpm, date: statistic.startDate)
             heartData.append(heartRate)
+        }
+    }
+    
+    private func updateRestingHeartData(_ collection: HKStatisticsCollection) {
+        print("collection.statistics() = \(collection.statistics())")
+        for statistic in collection.statistics() {
+            print("statistic = \(statistic)")
+            var bpm = 0.0
+            if let quantity = statistic.averageQuantity() {
+                bpm = quantity.doubleValue(
+                    for: HKUnit.count().unitDivided(by: HKUnit.minute())
+                )
+                print("bpm = \(bpm)")
+            }
+            //let heartRate = HeartRate(bpm: bpm, date: statistic.startDate)
+            //heartData.append(heartRate)
         }
     }
     
