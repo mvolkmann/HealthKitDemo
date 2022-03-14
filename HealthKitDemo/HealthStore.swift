@@ -116,7 +116,6 @@ class HealthStore {
     
     func queryQuantity(
         typeId: HKQuantityTypeIdentifier) async -> HKQuantity? {
-            print("HealthStore.queryQuantity: typeId = \(typeId.rawValue)")
             guard let hkStore = hkStore else { return nil }
             
             // Sort so the most recent value is first.
@@ -137,10 +136,9 @@ class HealthStore {
                         continuation.resume(returning: nil)
                     } else if let results = results {
                         if let result = results.first as? HKQuantitySample {
-                            print("queryQuantity: result = \(result)")
                             continuation.resume(returning: result.quantity)
                         } else {
-                            print("queryQuantity: empty result set")
+                            print("queryQuantity: empty result set for \(typeId.rawValue)")
                             continuation.resume(returning: nil)
                         }
                     } else {
