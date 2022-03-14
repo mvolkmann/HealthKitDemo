@@ -1,5 +1,83 @@
 import HealthKit
+import HealthKitUI
 import SwiftUI
+
+func dToI(_ d: Double) -> Int {
+    return Int(d + 0.5)
+}
+
+struct Rings: UIViewRepresentable {
+    var summary: HKActivitySummary
+
+    func makeUIView(context: Context) -> HKActivityRingView {
+        let ringView = HKActivityRingView()
+        ringView.setActivitySummary(summary, animated: true)
+        return ringView
+    }
+
+    func updateUIView(_ uiView: HKActivityRingView, context: Context) {
+        // do nothing
+    }
+}
+
+struct Activity: View {
+    var summary: HKActivitySummary
+    
+    var body: some View {
+        let energyUnit   = HKUnit.kilocalorie()
+        let standUnit    = HKUnit.count()
+        let exerciseUnit = HKUnit.second()
+        
+        let energyGoal   = summary.activeEnergyBurnedGoal.doubleValue(for: energyUnit)
+        let standGoal    = summary.appleStandHoursGoal.doubleValue(for: standUnit)
+        let exerciseGoal = summary.appleExerciseTimeGoal.doubleValue(for: exerciseUnit) / 60
+        
+        let energy   = summary.activeEnergyBurned.doubleValue(for: energyUnit)
+        let stand    = summary.appleStandHours.doubleValue(for: standUnit)
+        let exercise = summary.appleExerciseTime.doubleValue(for: exerciseUnit) / 60
+        
+        let energyPercent   = energyGoal == 0 ? 0 : energy / energyGoal * 100
+        let standPercent    = standGoal == 0 ? 0 : stand / standGoal * 100
+        let exercisePercent = exerciseGoal == 0 ? 0 : exercise / exerciseGoal * 100
+        
+        let frame = CGRect(x: 0, y: 0, width: 200, height: 200)
+        let ringView = HKActivityRingView(frame: frame)
+        ringView.setActivitySummary(summary, animated: true)
+        //let parent = UIViewController()
+        //parent.view.addSubview(ringView)
+
+        let size = 100.0
+        return VStack(alignment: .leading) {
+            //TODO: Get the date!
+            //Text(summary.date, style: .date).opacity(0.5)
+            Rings(summary: summary)
+                .frame(minWidth: size, maxWidth: size, minHeight: size, maxHeight: size)
+            Text("Move: \(String(format: "%.1f", energyPercent))% " +
+                 "\(dToI(energy)) of \(dToI(energyGoal)) calories")
+            Text("Exercise: \(String(format: "%.1f", exercisePercent))% " +
+                 "\(dToI(exercise)) of \(dToI(exerciseGoal)) minutes")
+            Text("Stand: \(String(format: "%.1f", standPercent))% " +
+                 "\(dToI(stand)) of \(dToI(standGoal)) hours")
+        }
+    }
+}
+
+struct ActivityPage: View {
+    var data: [HKActivitySummary]?;
+    var body: some View {
+        NavigationView {
+            VStack(alignment: .leading) {
+                if let data = data {
+                    List(data, id: \.self) { activitySummary in
+                        Activity(summary: activitySummary)
+                    }
+                } else {
+                    Text("No activity data was found.")
+                }
+            }.navigationTitle("Activity")
+        }.navigationViewStyle(.stack) //TODO: Why needed?
+    }
+}
 
 struct CharacteristicsPage: View {
     var data: Characteristics?;
@@ -60,6 +138,7 @@ struct WalkRunPage: View {
 }
 
 struct ContentView: View {
+    @State private var activitySummaries: [HKActivitySummary]?
     @State private var characteristics: Characteristics?
     @State private var cyclingData = [Cycling]()
     @State private var heartData = [HeartRate]()
@@ -69,12 +148,7 @@ struct ContentView: View {
         do {
             let store = try HealthStore()
             if try await store.requestAuthorization() {
-                let appleStats = await store.queryAppleStats()
-                if let appleStats = appleStats {
-                    print("appleStats = \(appleStats)")
-                } else {
-                    print("no appleStats")
-                }
+                activitySummaries = await store.queryActivity()
                 
                 characteristics = await store.queryCharacteristics()
                 
@@ -153,6 +227,10 @@ struct ContentView: View {
             CharacteristicsPage(data: characteristics).tabItem {
                 Image(systemName: "info.circle.fill")
                 Text("Characteristics")
+            }
+            ActivityPage(data: activitySummaries).tabItem {
+                Image("Activity")
+                Text("Activity")
             }
             HeartPage(data: heartData).tabItem {
                 Image(systemName: "heart.fill")

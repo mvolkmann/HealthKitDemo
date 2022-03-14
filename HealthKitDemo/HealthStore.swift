@@ -19,10 +19,58 @@ class HealthStore {
         return HKQuantityType.quantityType(forIdentifier: typeId)!
     }
     
+    func queryActivity() async -> [HKActivitySummary]? {
+        guard let hkStore = hkStore else { return nil }
+        
+        let endDate = Date()
+        
+        let calendar = NSCalendar.current
+        let startDate = calendar.date(byAdding: .day, value: -7, to: endDate)
+        
+        let units: Set<Calendar.Component> = [.day, .month, .year, .era]
+        var startDateComponents = calendar.dateComponents(units, from: startDate!)
+        startDateComponents.calendar = calendar
+        
+        var endDateComponents = calendar.dateComponents(units, from: endDate)
+        endDateComponents.calendar = calendar
+        
+        let predicate = HKQuery.predicate(
+            forActivitySummariesBetweenStart: startDateComponents,
+            end: endDateComponents
+        )
+        
+        return await withCheckedContinuation { continuation in
+            let q = HKActivitySummaryQuery(
+                predicate: predicate,
+                resultsHandler: {_, summaries, error in
+                    if let error = error {
+                        print("error = \(error.localizedDescription)")
+                        continuation.resume(returning: nil)
+                    } else {
+                        /*
+                        if let summaries = summaries {
+                            print("summaries = \(summaries)")
+                            let first = summaries.isEmpty ? nil : summaries.first
+                            continuation.resume(returning: first)
+                        } else {
+                            continuation.resume(returning: nil)
+                        }
+                        */
+                        continuation.resume(returning: summaries)
+                    }
+                }
+            )
+            print("calling execute")
+            hkStore.execute(q)
+        }
+    }
+    
+    /*
     func queryAppleStats() async -> HKStatistics? {
         //TODO: Why doesn't this return a value?
-        return await queryOne(typeId: .appleMoveTime, options: .mostRecent)
+        return await queryOne(typeId: .appleMoveTime)
     }
+    */
     
     func queryCharacteristics() async -> Characteristics? {
         guard let hkStore = hkStore else { return nil }
@@ -86,13 +134,13 @@ class HealthStore {
         return await queryCollection(typeId: .heartRate, options: .discreteAverage)
     }
     
+    /*
     func queryOne(
         typeId: HKQuantityTypeIdentifier,
-        options: HKStatisticsOptions
     ) async -> HKStatistics? {
         guard let hkStore = hkStore else { return nil }
         
-        let predicate = HKQuery.predicateForSamples(
+        let predicate = HKQuery.predicateForObject(with: typeId)(
             withStart: Date(),
             end: Date(),
             options: .strictStartDate
@@ -113,6 +161,7 @@ class HealthStore {
             hkStore.execute(q)
         }
     }
+    */
     
     func queryRestingHeart() async -> HKStatisticsCollection? {
         return await queryCollection(typeId: .restingHeartRate, options: .discreteAverage)
@@ -146,6 +195,7 @@ class HealthStore {
         guard let store = hkStore else { return false }
         
         try await store.__requestAuthorization(toShare: [], read: [
+            HKObjectType.activitySummaryType(),
             characteristicType(.biologicalSex),
             characteristicType(.dateOfBirth),
             quantityType(.appleExerciseTime),
