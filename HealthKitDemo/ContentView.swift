@@ -7,20 +7,24 @@ func dToI(_ d: Double) -> Int {
 }
 
 struct Rings: UIViewRepresentable {
-    var summary: HKActivitySummary
+    var activitySummary: HKActivitySummary
 
     func makeUIView(context: Context) -> HKActivityRingView {
         let ringView = HKActivityRingView()
-        ringView.setActivitySummary(summary, animated: true)
+        ringView.setActivitySummary(activitySummary, animated: true)
         return ringView
     }
 
     func updateUIView(_ uiView: HKActivityRingView, context: Context) {
-        // do nothing
+        uiView.activitySummary = self.activitySummary
     }
 }
 
 struct Activity: View {
+    let moveColor: UInt = 0xff376c;
+    let exerciseColor: UInt = 0x9ef631;
+    let standColor: UInt = 0x00f0db;
+    
     var summary: HKActivitySummary
     
     var body: some View {
@@ -40,25 +44,23 @@ struct Activity: View {
         let standPercent    = standGoal == 0 ? 0 : stand / standGoal * 100
         let exercisePercent = exerciseGoal == 0 ? 0 : exercise / exerciseGoal * 100
         
-        let frame = CGRect(x: 0, y: 0, width: 200, height: 200)
-        let ringView = HKActivityRingView(frame: frame)
-        ringView.setActivitySummary(summary, animated: true)
-        //let parent = UIViewController()
-        //parent.view.addSubview(ringView)
-
+        let date = summary.dateComponents(for: .current).date
+        
         let size = 100.0
         return VStack(alignment: .leading) {
-            //TODO: Get the date!
-            //Text(summary.date, style: .date).opacity(0.5)
-            Rings(summary: summary)
+            if let date = date { Text(date, style: .date) }
+            Rings(activitySummary: summary)
                 .frame(minWidth: size, maxWidth: size, minHeight: size, maxHeight: size)
-            Text("Move: \(String(format: "%.1f", energyPercent))% " +
-                 "\(dToI(energy)) of \(dToI(energyGoal)) calories")
-            Text("Exercise: \(String(format: "%.1f", exercisePercent))% " +
-                 "\(dToI(exercise)) of \(dToI(exerciseGoal)) minutes")
-            Text("Stand: \(String(format: "%.1f", standPercent))% " +
-                 "\(dToI(stand)) of \(dToI(standGoal)) hours")
-        }
+            Text("MOVE: \(dToI(energyPercent))% " +
+                 "\(dToI(energy))/\(dToI(energyGoal)) calories")
+                .foregroundColor(Color(hex: moveColor))
+            Text("EXERCISE: \(dToI(exercisePercent))% " +
+                 "\(dToI(exercise))/\(dToI(exerciseGoal)) minutes")
+                .foregroundColor(Color(hex: exerciseColor))
+            Text("STAND: \(dToI(standPercent))% " +
+                 "\(dToI(stand))/\(dToI(standGoal)) hours")
+                .foregroundColor(Color(hex: standColor))
+        }.padding(.all, 10).background(.black).foregroundColor(.white)
     }
 }
 
@@ -68,7 +70,7 @@ struct ActivityPage: View {
         NavigationView {
             VStack(alignment: .leading) {
                 if let data = data {
-                    List(data, id: \.self) { activitySummary in
+                    List(data.reversed(), id: \.self) { activitySummary in
                         Activity(summary: activitySummary)
                     }
                 } else {
@@ -99,7 +101,7 @@ struct CyclingPage: View {
     var data: [Cycling];
     var body: some View {
         NavigationView {
-            List(data, id: \.id) { cycling in
+            List(data.reversed(), id: \.id) { cycling in
                 VStack(alignment: .leading) {
                     Text(String(format: "%.1f miles", cycling.distance))
                     Text(cycling.date, style: .date).opacity(0.5)
@@ -113,7 +115,7 @@ struct HeartPage: View {
     var data: [HeartRate];
     var body: some View {
         NavigationView {
-            List(data, id: \.id) { heartRate in
+            List(data.reversed(), id: \.id) { heartRate in
                 VStack(alignment: .leading) {
                     Text(String(format: "%.0f bpm", heartRate.bpm))
                     Text(heartRate.date, style: .date).opacity(0.5)
@@ -127,7 +129,7 @@ struct WalkRunPage: View {
     var data: [Steps];
     var body: some View {
         NavigationView {
-            List(data, id: \.id) { steps in
+            List(data.reversed(), id: \.id) { steps in
                 VStack(alignment: .leading) {
                     Text("\(steps.count) steps")
                     Text(steps.date, style: .date).opacity(0.5)
