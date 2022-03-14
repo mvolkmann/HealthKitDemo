@@ -94,7 +94,7 @@ class HealthStore {
         let q = HKStatisticsCollectionQuery(
             quantityType: quantityType(typeId),
             quantitySamplePredicate: predicate(days: 7),
-            options: .mostRecent,
+            options: options,
             anchorDate: Date.mondayAt12AM(),
             intervalComponents: DateComponents(day: 1)
         )
