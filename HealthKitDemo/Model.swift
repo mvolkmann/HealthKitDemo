@@ -2,6 +2,8 @@ import Foundation
 import HealthKit
 
 struct Characteristics {
+    let bodyMass: Double
+    
     let dateOfBirth: Date?
     
     // Computed property

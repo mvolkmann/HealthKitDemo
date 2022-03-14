@@ -13,6 +13,19 @@ struct ContentView: View {
         do {
             let store = try HealthStore()
             if try await store.requestAuthorization() {
+                var success = await store.saveQuantity(
+                    typeId: .bodyMass,
+                    unit: .pound(),
+                    value: 175
+                )
+                print("getData: bodyMass success = \(success)")
+                success = await store.saveQuantity(
+                    typeId: .waistCircumference,
+                    unit: .inch(),
+                    value: 35
+                )
+                print("getData: waist success = \(success)")
+                    
                 activitySummaries = await store.queryActivity()
                 
                 characteristics = await store.queryCharacteristics()
@@ -64,9 +77,9 @@ struct ContentView: View {
     }
     
     private func updateRestingHeartData(_ collection: HKStatisticsCollection) {
-        print("collection.statistics() = \(collection.statistics())")
+        //print("collection.statistics() = \(collection.statistics())")
         for statistic in collection.statistics() {
-            print("statistic = \(statistic)")
+            //print("statistic = \(statistic)")
             var bpm = 0.0
             if let quantity = statistic.averageQuantity() {
                 bpm = quantity.doubleValue(

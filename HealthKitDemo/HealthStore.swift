@@ -16,6 +16,7 @@ class HealthStore {
     }
     
     private func quantityType(_ typeId: HKQuantityTypeIdentifier) -> HKQuantityType {
+        //return HKObjectType.quantityType(forIdentifier: typeId)!
         return HKQuantityType.quantityType(forIdentifier: typeId)!
     }
     
@@ -23,9 +24,8 @@ class HealthStore {
         guard let hkStore = hkStore else { return nil }
         
         let endDate = Date()
-        
-        let calendar = NSCalendar.current
-        let startDate = calendar.date(byAdding: .day, value: -7, to: endDate)
+        let calendar = Calendar.current
+        let startDate = calendar.date(byAdding: .day, value: -6, to: endDate)
         
         let units: Set<Calendar.Component> = [.day, .month, .year, .era]
         var startDateComponents = calendar.dateComponents(units, from: startDate!)
@@ -60,7 +60,6 @@ class HealthStore {
                     }
                 }
             )
-            print("calling execute")
             hkStore.execute(q)
         }
     }
@@ -89,9 +88,11 @@ class HealthStore {
             // do nothing
         }
         
+        let bodyMass = await queryQuantity(typeId: .bodyMass)
         let height = await queryQuantity(typeId: .height)
         let waist = await queryQuantity(typeId: .waistCircumference)
         return Characteristics(
+            bodyMass: bodyMass == nil ? 0 : bodyMass!.doubleValue(for: .pound()),
             dateOfBirth: dateOfBirth,
             heightInMeters: height == nil ? 0 : height!.doubleValue(for: .meter()),
             sexEnum: sex,
@@ -105,10 +106,12 @@ class HealthStore {
     ) async -> HKStatisticsCollection? {
         guard let hkStore = hkStore else { return nil }
         
-        let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date())
+        let endDate = Date()
+        let calendar = Calendar.current
+        let startDate = calendar.date(byAdding: .day, value: -6, to: endDate)
         let predicate = HKQuery.predicateForSamples(
             withStart: startDate,
-            end: Date(),
+            end: endDate,
             options: .strictStartDate
         )
         let q = HKStatisticsCollectionQuery(
@@ -163,29 +166,40 @@ class HealthStore {
     }
     */
     
-    func queryRestingHeart() async -> HKStatisticsCollection? {
-        return await queryCollection(typeId: .restingHeartRate, options: .discreteAverage)
-    }
-    
     func queryQuantity(
         typeId: HKQuantityTypeIdentifier) async -> HKQuantity? {
             guard let hkStore = hkStore else { return nil }
             
             let type = quantityType(typeId)
             return await withCheckedContinuation { continuation in
-                let query = HKSampleQuery(sampleType: type, predicate: nil, limit: 1, sortDescriptors: nil) {
+                let query = HKSampleQuery(
+                    sampleType: type,
+                    predicate: nil,
+                    limit: 1,
+                    sortDescriptors: nil
+                ) {
                     (query1, results, error) in
-                    if error == nil {
+                    if let error = error {
+                        print("queryQuantity: error = \(error)")
                         continuation.resume(returning: nil)
-                    } else if let result = results?.first as? HKQuantitySample {
-                        continuation.resume(returning: result.quantity)
+                    } else if let results = results {
+                        if let result = results.first as? HKQuantitySample {
+                            continuation.resume(returning: result.quantity)
+                        } else {
+                            continuation.resume(returning: nil)
+                        }
                     } else {
+                        print("queryQuantity: no results or error")
                         continuation.resume(returning: nil)
                     }
                 }
                 hkStore.execute(query)
             }
         }
+    
+    func queryRestingHeart() async -> HKStatisticsCollection? {
+        return await queryCollection(typeId: .restingHeartRate, options: .discreteAverage)
+    }
     
     func querySteps() async -> HKStatisticsCollection? {
         return await queryCollection(typeId: .stepCount, options: .cumulativeSum)
@@ -194,21 +208,62 @@ class HealthStore {
     func requestAuthorization() async throws -> Bool {
         guard let store = hkStore else { return false }
         
-        try await store.__requestAuthorization(toShare: [], read: [
-            HKObjectType.activitySummaryType(),
-            characteristicType(.biologicalSex),
-            characteristicType(.dateOfBirth),
-            quantityType(.appleExerciseTime),
-            quantityType(.appleMoveTime),
-            quantityType(.appleStandTime),
-            quantityType(.distanceCycling),
-            quantityType(.heartRate),
-            quantityType(.height),
-            quantityType(.restingHeartRate),
-            quantityType(.stepCount),
-            quantityType(.waistCircumference),
-        ])
+        try await store.__requestAuthorization(
+            // The app can update these.
+            toShare: [
+                quantityType(.bodyMass),
+                quantityType(.waistCircumference),
+            ],
+            read: [
+                HKObjectType.activitySummaryType(),
+                characteristicType(.biologicalSex),
+                characteristicType(.dateOfBirth),
+                quantityType(.appleExerciseTime),
+                quantityType(.appleMoveTime),
+                quantityType(.appleStandTime),
+                quantityType(.bodyMass),
+                quantityType(.distanceCycling),
+                quantityType(.heartRate),
+                quantityType(.height),
+                quantityType(.restingHeartRate),
+                quantityType(.stepCount),
+                quantityType(.waistCircumference),
+            ]
+        )
         
         return true
+    }
+    
+    func saveQuantity(
+        typeId: HKQuantityTypeIdentifier,
+        unit: HKUnit,
+        value: Double
+    ) async -> Bool {
+        guard let store = hkStore else { return false }
+        
+        let type = quantityType(typeId)
+        
+        let endDate = Date()
+        let calendar = Calendar.current
+        let startDate = calendar.date(byAdding: .day, value: -1, to: endDate)!
+        
+        let sample = HKQuantitySample.init(
+            type: type,
+            quantity: HKQuantity.init(unit: unit, doubleValue: value),
+            start: startDate,
+            end: startDate
+        )
+        
+        return await withCheckedContinuation { continuation in
+            store.save(sample) { success, error in
+                if let error = error {
+                    print("save error = \(error)")
+                    continuation.resume(returning: false)
+                } else {
+                    print("save success")
+                    continuation.resume(returning: true)
+                }
+            }
+        }
     }
 }

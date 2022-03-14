@@ -9,7 +9,8 @@ struct CharacteristicsPage: View {
                     Text("Sex: \(data.sex)")
                     Text("Date of Birth: \(data.dateOfBirthFormatted)")
                     Text("Height: \(data.heightInImperial)")
-                    Text("Waist: \(String(format: "%.1f inches", data.waistInInches))")
+                    Text("Waist: \(data.waistInInches) inches")
+                    Text("Weight: \(dToI(data.bodyMass)) pounds")
                 }
             }.navigationTitle("Characteristics")
         }.navigationViewStyle(.stack) //TODO: Why needed?

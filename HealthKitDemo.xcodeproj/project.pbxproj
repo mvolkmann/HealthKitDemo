@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1AD127A227DFC69400AD4FCE /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD127A127DFC69400AD4FCE /* util.swift */; };
 		1AD95D2627DA9DB50068979E /* HealthKitDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */; };
 		1AD95D2827DA9DB50068979E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D2727DA9DB50068979E /* ContentView.swift */; };
 		1AD95D2A27DA9DB70068979E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1AD95D2927DA9DB70068979E /* Assets.xcassets */; };
@@ -45,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1AD127A127DFC69400AD4FCE /* util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
 		1AD95D2227DA9DB50068979E /* HealthKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitDemoApp.swift; sourceTree = "<group>"; };
 		1AD95D2727DA9DB50068979E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				1AD95D9D27DFA2A30068979E /* CyclingPage.swift */,
 				1AD95D9B27DFA2580068979E /* CharacteristicsPage.swift */,
 				1AD95D9927DFA1E00068979E /* ActivityPage.swift */,
+				1AD127A127DFC69400AD4FCE /* util.swift */,
 				1AD95D9527DBBF120068979E /* RuntimeError.swift */,
 				1AD95D4F27DA9EB90068979E /* HealthStore.swift */,
 				1AD95D8D27DAA62A0068979E /* DateExtensions.swift */,
@@ -305,6 +308,7 @@
 				1AD95DA227DFA2F00068979E /* WalkRunPage.swift in Sources */,
 				1AD95D2827DA9DB50068979E /* ContentView.swift in Sources */,
 				1AD95D9E27DFA2A30068979E /* CyclingPage.swift in Sources */,
+				1AD127A227DFC69400AD4FCE /* util.swift in Sources */,
 				1AD95D8E27DAA62A0068979E /* DateExtensions.swift in Sources */,
 				1AD95D9627DBBF120068979E /* RuntimeError.swift in Sources */,
 				1AD95D5027DA9EB90068979E /* HealthStore.swift in Sources */,
