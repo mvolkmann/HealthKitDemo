@@ -50,6 +50,10 @@ class HealthStore {
         }
     }
     
+    func quantityDoubleValue(_ quantity: HKQuantity?, unit: HKUnit) -> Double {
+        return quantity == nil ? 0 : quantity!.doubleValue(for: unit)
+    }
+    
     func queryCharacteristics() async -> Characteristics? {
         guard let hkStore = hkStore else { return nil }
         
@@ -68,14 +72,16 @@ class HealthStore {
         }
         
         let bodyMass = await queryQuantity(typeId: .bodyMass)
+        let heartRateQuantity = await queryQuantity(typeId: .heartRate)
         let height = await queryQuantity(typeId: .height)
         let waist = await queryQuantity(typeId: .waistCircumference)
         return Characteristics(
-            bodyMass: bodyMass == nil ? 0 : bodyMass!.doubleValue(for: .pound()),
+            bodyMass: quantityDoubleValue(bodyMass, unit: .pound()),
             dateOfBirth: dateOfBirth,
-            heightInMeters: height == nil ? 0 : height!.doubleValue(for: .meter()),
+            heartRate: Int(quantityDoubleValue(heartRateQuantity, unit: HKUnit(from: "count/min"))),
+            heightInMeters: quantityDoubleValue(height, unit: .meter()),
             sexEnum: sex,
-            waistInMeters: waist == nil ? 0 : waist!.doubleValue(for: .meter())
+            waistInMeters: quantityDoubleValue(waist, unit: .meter())
         )
     }
     
@@ -183,8 +189,10 @@ class HealthStore {
         typeId: HKQuantityTypeIdentifier,
         unit: HKUnit,
         value: Double
-    ) async -> Bool {
-        guard let store = hkStore else { return false }
+    ) async throws {
+        guard let store = hkStore else {
+            throw RuntimeError("HealthStore.saveQuantity: HKHealthStore not created")
+        }
         
         let date = Date()
         let sample = HKQuantitySample.init(
@@ -194,13 +202,12 @@ class HealthStore {
             end: date
         )
         
-        return await withCheckedContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             store.save(sample) { success, error in
                 if let error = error {
-                    print("saveQuantity: error = \(error)")
-                    continuation.resume(returning: false)
+                    continuation.resume(throwing: error)
                 } else {
-                    continuation.resume(returning: true)
+                    continuation.resume()
                 }
             }
         }

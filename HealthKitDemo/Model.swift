@@ -14,6 +14,8 @@ struct Characteristics {
         return dateFormatter.string(from: dateOfBirth)
     }
     
+    let heartRate: Int
+    
     let heightInMeters: Double
     var heightInImperial: String {
         let totalInches = heightInMeters * 39.3701;

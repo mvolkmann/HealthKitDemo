@@ -13,18 +13,16 @@ struct ContentView: View {
         do {
             let store = try HealthStore()
             if try await store.requestAuthorization() {
-                var success = await store.saveQuantity(
+                try await store.saveQuantity(
                     typeId: .bodyMass,
                     unit: .pound(),
-                    value: 172
+                    value: 170
                 )
-                print("getData: bodyMass success = \(success)")
-                success = await store.saveQuantity(
+                try await store.saveQuantity(
                     typeId: .waistCircumference,
                     unit: .inch(),
-                    value: 34
+                    value: 33
                 )
-                print("getData: waist success = \(success)")
                     
                 activitySummaries = await store.queryActivity()
                 
