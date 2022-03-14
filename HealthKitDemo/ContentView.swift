@@ -16,13 +16,13 @@ struct ContentView: View {
                 var success = await store.saveQuantity(
                     typeId: .bodyMass,
                     unit: .pound(),
-                    value: 175
+                    value: 172
                 )
                 print("getData: bodyMass success = \(success)")
                 success = await store.saveQuantity(
                     typeId: .waistCircumference,
                     unit: .inch(),
-                    value: 35
+                    value: 34
                 )
                 print("getData: waist success = \(success)")
                     

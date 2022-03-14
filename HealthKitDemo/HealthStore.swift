@@ -15,47 +15,33 @@ class HealthStore {
         return HKCharacteristicType.characteristicType(forIdentifier: typeId)!
     }
     
+    func predicate(days: Int) -> NSPredicate {
+        let endDate = Date()
+        let calendar = Calendar.current
+        let startDate = calendar.date(byAdding: .day, value: -(days - 1), to: endDate)
+        return HKQuery.predicateForSamples(
+            withStart: startDate,
+            end: endDate,
+            options: .strictStartDate
+        )
+    }
+    
     private func quantityType(_ typeId: HKQuantityTypeIdentifier) -> HKQuantityType {
-        //return HKObjectType.quantityType(forIdentifier: typeId)!
         return HKQuantityType.quantityType(forIdentifier: typeId)!
     }
     
     func queryActivity() async -> [HKActivitySummary]? {
         guard let hkStore = hkStore else { return nil }
         
-        let endDate = Date()
-        let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -6, to: endDate)
-        
-        let units: Set<Calendar.Component> = [.day, .month, .year, .era]
-        var startDateComponents = calendar.dateComponents(units, from: startDate!)
-        startDateComponents.calendar = calendar
-        
-        var endDateComponents = calendar.dateComponents(units, from: endDate)
-        endDateComponents.calendar = calendar
-        
-        let predicate = HKQuery.predicate(
-            forActivitySummariesBetweenStart: startDateComponents,
-            end: endDateComponents
-        )
-        
         return await withCheckedContinuation { continuation in
             let q = HKActivitySummaryQuery(
-                predicate: predicate,
+                //TODO: Why do I need to ask for 8 days to get 7?
+                predicate: predicate(days: 8),
                 resultsHandler: {_, summaries, error in
                     if let error = error {
                         print("error = \(error.localizedDescription)")
                         continuation.resume(returning: nil)
                     } else {
-                        /*
-                        if let summaries = summaries {
-                            print("summaries = \(summaries)")
-                            let first = summaries.isEmpty ? nil : summaries.first
-                            continuation.resume(returning: first)
-                        } else {
-                            continuation.resume(returning: nil)
-                        }
-                        */
                         continuation.resume(returning: summaries)
                     }
                 }
@@ -63,13 +49,6 @@ class HealthStore {
             hkStore.execute(q)
         }
     }
-    
-    /*
-    func queryAppleStats() async -> HKStatistics? {
-        //TODO: Why doesn't this return a value?
-        return await queryOne(typeId: .appleMoveTime)
-    }
-    */
     
     func queryCharacteristics() async -> Characteristics? {
         guard let hkStore = hkStore else { return nil }
@@ -106,17 +85,9 @@ class HealthStore {
     ) async -> HKStatisticsCollection? {
         guard let hkStore = hkStore else { return nil }
         
-        let endDate = Date()
-        let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -6, to: endDate)
-        let predicate = HKQuery.predicateForSamples(
-            withStart: startDate,
-            end: endDate,
-            options: .strictStartDate
-        )
         let q = HKStatisticsCollectionQuery(
             quantityType: quantityType(typeId),
-            quantitySamplePredicate: predicate,
+            quantitySamplePredicate: predicate(days: 7),
             options: .mostRecent,
             anchorDate: Date.mondayAt12AM(),
             intervalComponents: DateComponents(day: 1)
@@ -137,46 +108,20 @@ class HealthStore {
         return await queryCollection(typeId: .heartRate, options: .discreteAverage)
     }
     
-    /*
-    func queryOne(
-        typeId: HKQuantityTypeIdentifier,
-    ) async -> HKStatistics? {
-        guard let hkStore = hkStore else { return nil }
-        
-        let predicate = HKQuery.predicateForObject(with: typeId)(
-            withStart: Date(),
-            end: Date(),
-            options: .strictStartDate
-        )
-        return await withCheckedContinuation { continuation in
-            let q = HKStatisticsQuery(
-                quantityType: quantityType(.appleMoveTime),
-                quantitySamplePredicate: predicate,
-                options: .mostRecent,
-                completionHandler: {_, value, error in
-                    if error == nil {
-                        continuation.resume(returning: value!)
-                    } else {
-                        continuation.resume(returning: nil)
-                    }
-                }
-            )
-            hkStore.execute(q)
-        }
-    }
-    */
-    
     func queryQuantity(
         typeId: HKQuantityTypeIdentifier) async -> HKQuantity? {
             guard let hkStore = hkStore else { return nil }
             
-            let type = quantityType(typeId)
+            let sortDescriptors = [
+                NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+            ]
             return await withCheckedContinuation { continuation in
                 let query = HKSampleQuery(
-                    sampleType: type,
+                    sampleType: quantityType(typeId),
                     predicate: nil,
+                    //predicate: predicate(days: 1), //TODO: Why doesn't this work?
                     limit: 1,
-                    sortDescriptors: nil
+                    sortDescriptors: sortDescriptors
                 ) {
                     (query1, results, error) in
                     if let error = error {
@@ -241,26 +186,20 @@ class HealthStore {
     ) async -> Bool {
         guard let store = hkStore else { return false }
         
-        let type = quantityType(typeId)
-        
-        let endDate = Date()
-        let calendar = Calendar.current
-        let startDate = calendar.date(byAdding: .day, value: -1, to: endDate)!
-        
+        let date = Date()
         let sample = HKQuantitySample.init(
-            type: type,
+            type: quantityType(typeId),
             quantity: HKQuantity.init(unit: unit, doubleValue: value),
-            start: startDate,
-            end: startDate
+            start: date,
+            end: date
         )
         
         return await withCheckedContinuation { continuation in
             store.save(sample) { success, error in
                 if let error = error {
-                    print("save error = \(error)")
+                    print("saveQuantity: error = \(error)")
                     continuation.resume(returning: false)
                 } else {
-                    print("save success")
                     continuation.resume(returning: true)
                 }
             }
