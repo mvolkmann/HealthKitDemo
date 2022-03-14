@@ -116,8 +116,10 @@ class HealthStore {
     
     func queryQuantity(
         typeId: HKQuantityTypeIdentifier) async -> HKQuantity? {
+            print("HealthStore.queryQuantity: typeId = \(typeId.rawValue)")
             guard let hkStore = hkStore else { return nil }
             
+            // Sort so the most recent value is first.
             let sortDescriptors = [
                 NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
             ]
@@ -131,12 +133,14 @@ class HealthStore {
                 ) {
                     (query1, results, error) in
                     if let error = error {
-                        print("queryQuantity: error = \(error)")
+                        print("queryQuantity: error = \(error.localizedDescription)")
                         continuation.resume(returning: nil)
                     } else if let results = results {
                         if let result = results.first as? HKQuantitySample {
+                            print("queryQuantity: result = \(result)")
                             continuation.resume(returning: result.quantity)
                         } else {
+                            print("queryQuantity: empty result set")
                             continuation.resume(returning: nil)
                         }
                     } else {
@@ -186,6 +190,18 @@ class HealthStore {
     }
     
     func saveQuantity(
+        typeId: HKQuantityTypeIdentifier,
+        unit: HKUnit,
+        value: Double
+    ) async {
+        do {
+            try await saveQuantityThrowing(typeId: typeId, unit: unit, value: value)
+        } catch {
+            print("error writing \(typeId.rawValue): \(error.localizedDescription)")
+        }
+    }
+    
+    func saveQuantityThrowing(
         typeId: HKQuantityTypeIdentifier,
         unit: HKUnit,
         value: Double

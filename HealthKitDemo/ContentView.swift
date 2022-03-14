@@ -13,16 +13,8 @@ struct ContentView: View {
         do {
             let store = try HealthStore()
             if try await store.requestAuthorization() {
-                try await store.saveQuantity(
-                    typeId: .bodyMass,
-                    unit: .pound(),
-                    value: 170
-                )
-                try await store.saveQuantity(
-                    typeId: .waistCircumference,
-                    unit: .inch(),
-                    value: 33
-                )
+                await store.saveQuantity(typeId: .bodyMass, unit: .pound(), value: 170)
+                await store.saveQuantity(typeId: .waistCircumference, unit: .inch(), value: 33)
                     
                 activitySummaries = await store.queryActivity()
                 
@@ -49,7 +41,7 @@ struct ContentView: View {
                 }
             }
         } catch {
-            print("error: \(error)")
+            print("ContentView.getData: error = \(error)")
         }
     }
  
