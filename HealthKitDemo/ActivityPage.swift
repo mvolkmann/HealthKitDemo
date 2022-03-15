@@ -72,12 +72,8 @@ struct ActivityPage: View {
     
     private func loadData() async {
         data.removeAll()
-        do {
-            let store = try HealthStore()
-            data = await store.queryActivity() ?? []
-        } catch {
-            print("ActiviyPage.loadData: error = \(error)")
-        }
+        let store = HealthStore()
+        data = await store.queryActivity() ?? []
     }
     
     var body: some View {
