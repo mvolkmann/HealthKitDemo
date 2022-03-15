@@ -5,9 +5,10 @@ struct WalkRunPage: View {
     var body: some View {
         NavigationView {
             List(data.reversed(), id: \.id) { steps in
-                VStack(alignment: .leading) {
+                HStack {
+                    Text(steps.date, style: .date)
+                    Spacer()
                     Text("\(steps.count) steps")
-                    Text(steps.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("Step Data")
         }.navigationViewStyle(.stack) //TODO: Why needed?

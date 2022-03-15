@@ -5,9 +5,10 @@ struct CyclingPage: View {
     var body: some View {
         NavigationView {
             List(data.reversed(), id: \.id) { cycling in
-                VStack(alignment: .leading) {
+                HStack {
+                    Text(cycling.date, style: .date)
+                    Spacer()
                     Text(String(format: "%.1f miles", cycling.distance))
-                    Text(cycling.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("Cycling Data")
         }.navigationViewStyle(.stack) //TODO: Why needed?

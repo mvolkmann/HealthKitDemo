@@ -41,21 +41,25 @@ struct Activity: View {
         
         let date = summary.dateComponents(for: .current).date
         
-        let size = 100.0
+        let size = 50.0
         return VStack(alignment: .leading) {
             if let date = date { Text(date, style: .date) }
+            HStack {
             Rings(activitySummary: summary)
                 .frame(minWidth: size, maxWidth: size, minHeight: size, maxHeight: size)
-            Text("MOVE: \(dToI(energyPercent))% " +
-                 "\(dToI(energy))/\(dToI(energyGoal)) calories")
-                .foregroundColor(Color(hex: moveColor))
-            Text("EXERCISE: \(dToI(exercisePercent))% " +
-                 "\(dToI(exercise))/\(dToI(exerciseGoal)) minutes")
-                .foregroundColor(Color(hex: exerciseColor))
-            Text("STAND: \(dToI(standPercent))% " +
-                 "\(dToI(stand))/\(dToI(standGoal)) hours")
-                .foregroundColor(Color(hex: standColor))
-        }.padding(.all, 10).background(.black).foregroundColor(.white)
+                VStack(alignment: .leading) {
+                    Text("MOVE: \(dToI(energyPercent))% " +
+                         "\(dToI(energy))/\(dToI(energyGoal)) calories")
+                        .foregroundColor(Color(hex: moveColor))
+                    Text("EXERCISE: \(dToI(exercisePercent))% " +
+                         "\(dToI(exercise))/\(dToI(exerciseGoal)) minutes")
+                        .foregroundColor(Color(hex: exerciseColor))
+                    Text("STAND: \(dToI(standPercent))% " +
+                         "\(dToI(stand))/\(dToI(standGoal)) hours")
+                        .foregroundColor(Color(hex: standColor))
+                }.font(.system(size: 12))
+            }
+        }.padding(.all, 14).background(.black).foregroundColor(.white)
     }
 }
 

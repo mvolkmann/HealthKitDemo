@@ -5,9 +5,10 @@ struct HeartPage: View {
     var body: some View {
         NavigationView {
             List(data.reversed(), id: \.id) { heartRate in
-                VStack(alignment: .leading) {
+                HStack {
+                    Text(heartRate.date, style: .date)
+                    Spacer()
                     Text(String(format: "%.0f bpm", heartRate.bpm))
-                    Text(heartRate.date, style: .date).opacity(0.5)
                 }
             }.navigationTitle("Heart Data")
         }.navigationViewStyle(.stack) //TODO: Why needed?
