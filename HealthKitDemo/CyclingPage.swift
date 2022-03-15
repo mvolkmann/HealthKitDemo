@@ -11,7 +11,7 @@ struct CyclingPage: View {
             if let collection = collection {
                 for statistic in collection.statistics() {
                     let miles = statistic.sumQuantity()?.doubleValue(for: .mile())
-                    let cycling = Cycling(distance: Double(miles ?? 0), date: statistic.startDate)
+                    let cycling = Cycling(date: statistic.startDate, distance: Double(miles ?? 0))
                     data.append(cycling)
                 }
             }

@@ -11,7 +11,7 @@ struct WalkRunPage: View {
             if let collection = collection {
                 for statistic in collection.statistics() {
                     let count = statistic.sumQuantity()?.doubleValue(for: .count())
-                    let step = Steps(count: Int(count ?? 0), date: statistic.startDate)
+                    let step = Steps(date: statistic.startDate, count: Int(count ?? 0))
                     data.append(step)
                 }
             }

@@ -48,18 +48,19 @@ struct Characteristics {
 
 struct Cycling: Identifiable {
     let id = UUID()
-    let distance: Double
     let date: Date
+    let distance: Double
 }
 
-struct HeartRate: Identifiable {
+struct Heart: Identifiable {
     let id = UUID()
-    let bpm: Double
     let date: Date
+    let averageBpm: Double
+    let restingBpm: Double
 }
 
 struct Steps: Identifiable {
     let id = UUID()
-    let count: Int
     let date: Date
+    let count: Int
 }
