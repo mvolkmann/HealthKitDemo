@@ -45,8 +45,8 @@ struct Activity: View {
         return VStack(alignment: .leading) {
             if let date = date { Text(date, style: .date) }
             HStack {
-            Rings(activitySummary: summary)
-                .frame(minWidth: size, maxWidth: size, minHeight: size, maxHeight: size)
+                Rings(activitySummary: summary)
+                    .frame(minWidth: size, maxWidth: size, minHeight: size, maxHeight: size)
                 VStack(alignment: .leading) {
                     Text("MOVE: \(dToI(energyPercent))% " +
                          "\(dToI(energy))/\(dToI(energyGoal)) calories")
@@ -59,7 +59,11 @@ struct Activity: View {
                         .foregroundColor(Color(hex: standColor))
                 }.font(.system(size: 12))
             }
-        }.padding(.all, 14).background(.black).foregroundColor(.white)
+        }
+            .frame(maxWidth: .infinity)
+            .padding(.all, 12)
+            .background(.black)
+            .foregroundColor(.white)
     }
 }
 

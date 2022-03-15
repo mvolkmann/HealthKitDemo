@@ -7,7 +7,6 @@ struct ContentView: View {
     @State private var characteristics: Characteristics?
     @State private var cyclingData = [Cycling]()
     @State private var heartData = [HeartRate]()
-    @State private var stepData = [Steps]()
     
     private func getData() async throws {
         do {
@@ -33,11 +32,6 @@ struct ContentView: View {
                 collection = await store.queryRestingHeart()
                 if let collection = collection {
                   updateRestingHeartData(collection)
-                }
-                
-                collection = await store.querySteps()
-                if let collection = collection {
-                   updateStepData(collection)
                 }
             }
         } catch {
@@ -67,26 +61,15 @@ struct ContentView: View {
     }
     
     private func updateRestingHeartData(_ collection: HKStatisticsCollection) {
-        //print("collection.statistics() = \(collection.statistics())")
         for statistic in collection.statistics() {
-            //print("statistic = \(statistic)")
             var bpm = 0.0
             if let quantity = statistic.averageQuantity() {
                 bpm = quantity.doubleValue(
                     for: HKUnit.count().unitDivided(by: HKUnit.minute())
                 )
-                print("bpm = \(bpm)")
             }
             //let heartRate = HeartRate(bpm: bpm, date: statistic.startDate)
             //heartData.append(heartRate)
-        }
-    }
-    
-    private func updateStepData(_ collection: HKStatisticsCollection) {
-        for statistic in collection.statistics() {
-            let count = statistic.sumQuantity()?.doubleValue(for: .count())
-            let step = Steps(count: Int(count ?? 0), date: statistic.startDate)
-            stepData.append(step)
         }
     }
     
@@ -104,7 +87,7 @@ struct ContentView: View {
                 Image(systemName: "heart.fill")
                 Text("Heart")
             }
-            WalkRunPage(data: stepData).tabItem {
+            WalkRunPage().tabItem {
                 Image(systemName: "figure.walk")
                 Text("Walking/Running")
             }
