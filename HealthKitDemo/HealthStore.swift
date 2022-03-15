@@ -172,6 +172,9 @@ class HealthStore {
     }
     
     func requestAuthorization() async throws {
+        // This throws if authorization could not be requested.
+        // Not throwing is not an indication that the user
+        // granted all the requested permissions.
         try await hkStore.requestAuthorization(
             // The app can update these.
             toShare: [
