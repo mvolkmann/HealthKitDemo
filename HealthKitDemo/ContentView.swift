@@ -5,7 +5,7 @@ import SwiftUI
 struct ContentView: View {
     private func requestAuth() async throws {
         do {
-            let store = try HealthStore()
+            let store = HealthStore()
             if try await store.requestAuthorization() {
                 // This demonstrates writing to HealthKit.
                 await store.saveQuantity(typeId: .bodyMass, unit: .pound(), value: 172)

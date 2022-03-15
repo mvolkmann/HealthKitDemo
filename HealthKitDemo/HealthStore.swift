@@ -172,7 +172,7 @@ class HealthStore {
     }
     
     func requestAuthorization() async throws -> Bool {
-        try await hkStore.__requestAuthorization(
+        try await hkStore.requestAuthorization(
             // The app can update these.
             toShare: [
                 quantityType(.bodyMass),
