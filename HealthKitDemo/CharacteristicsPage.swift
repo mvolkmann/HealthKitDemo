@@ -4,12 +4,8 @@ struct CharacteristicsPage: View {
     @State private var data: Characteristics?
     
     private func loadData() async {
-        do {
-            let store = try HealthStore()
-            data = await store.queryCharacteristics()
-        } catch {
-            print("CharacteristicsPage.loadData: error = \(error)")
-        }
+        let store = HealthStore()
+        data = await store.queryCharacteristics()
     }
     var body: some View {
         NavigationView {

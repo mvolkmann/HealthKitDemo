@@ -19,40 +19,44 @@ struct ContentView: View {
     }
  
     var body: some View {
-        TabView {
-            CharacteristicsPage().tabItem {
-                Image(systemName: "info.circle.fill")
-                Text("Characteristics")
-            }
-            ActivityPage().tabItem {
-                Image("Activity")
-                Text("Activity")
-            }
-            HeartPage().tabItem {
-                Image(systemName: "heart.fill")
-                Text("Heart")
-            }
-            WalkRunPage().tabItem {
-                Image(systemName: "figure.walk")
-                Text("Walking/Running")
-            }
-            CyclingPage().tabItem {
-                Image(systemName: "bicycle")
-                Text("Cycling")
-            }
-        }
-        .onAppear() {
-            //UITabBar.appearance().backgroundColor = .systemGray5
-            Task {
-                do {
-                    try await requestAuth()
-                } catch {
-                    print("ContentView onAppear: error \(error.localizedDescription)")
+        if (HKHealthStore.isHealthDataAvailable()) {
+            TabView {
+                CharacteristicsPage().tabItem {
+                    Image(systemName: "info.circle.fill")
+                    Text("Characteristics")
+                }
+                ActivityPage().tabItem {
+                    Image("Activity")
+                    Text("Activity")
+                }
+                HeartPage().tabItem {
+                    Image(systemName: "heart.fill")
+                    Text("Heart")
+                }
+                WalkRunPage().tabItem {
+                    Image(systemName: "figure.walk")
+                    Text("Walking/Running")
+                }
+                CyclingPage().tabItem {
+                    Image(systemName: "bicycle")
+                    Text("Cycling")
                 }
             }
+            .onAppear() {
+                //UITabBar.appearance().backgroundColor = .systemGray5
+                Task {
+                    do {
+                        try await requestAuth()
+                    } catch {
+                        print("ContentView onAppear: error \(error.localizedDescription)")
+                    }
+                }
+            }
+            // Change color of Image and Text views which defaults to blue.
+            //.accentColor(.purple)
+        } else {
+           Text("HealthKit is not avaiable on this device.")
         }
-        // Change color of Image and Text views which defaults to blue.
-        //.accentColor(.purple)
     }
 }
 

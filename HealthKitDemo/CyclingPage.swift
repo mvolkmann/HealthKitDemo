@@ -5,18 +5,14 @@ struct CyclingPage: View {
     
     private func loadData() async {
         data.removeAll()
-        do {
-            let store = try HealthStore()
-            let collection = await store.queryCycling()
-            if let collection = collection {
-                for statistic in collection.statistics() {
-                    let miles = statistic.sumQuantity()?.doubleValue(for: .mile())
-                    let cycling = Cycling(date: statistic.startDate, distance: Double(miles ?? 0))
-                    data.append(cycling)
-                }
+        let store = HealthStore()
+        let collection = await store.queryCycling()
+        if let collection = collection {
+            for statistic in collection.statistics() {
+                let miles = statistic.sumQuantity()?.doubleValue(for: .mile())
+                let cycling = Cycling(date: statistic.startDate, distance: Double(miles ?? 0))
+                data.append(cycling)
             }
-        } catch {
-            print("CyclingPage.loadData: error = \(error)")
         }
     }
     

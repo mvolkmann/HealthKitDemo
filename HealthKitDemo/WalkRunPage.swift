@@ -5,18 +5,14 @@ struct WalkRunPage: View {
     
     private func loadData() async {
         data.removeAll()
-        do {
-            let store = try HealthStore()
-            let collection = await store.querySteps()
-            if let collection = collection {
-                for statistic in collection.statistics() {
-                    let count = statistic.sumQuantity()?.doubleValue(for: .count())
-                    let step = Steps(date: statistic.startDate, count: Int(count ?? 0))
-                    data.append(step)
-                }
+        let store = HealthStore()
+        let collection = await store.querySteps()
+        if let collection = collection {
+            for statistic in collection.statistics() {
+                let count = statistic.sumQuantity()?.doubleValue(for: .count())
+                let step = Steps(date: statistic.startDate, count: Int(count ?? 0))
+                data.append(step)
             }
-        } catch {
-            print("WalkRunPage.loadData: error = \(error)")
         }
     }
     
