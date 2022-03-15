@@ -3,36 +3,21 @@ import HealthKitUI
 import SwiftUI
 
 struct ContentView: View {
-    private func getData() async throws {
+    private func requestAuth() async throws {
         do {
             let store = try HealthStore()
             if try await store.requestAuthorization() {
-                await store.saveQuantity(typeId: .bodyMass, unit: .pound(), value: 170)
-                await store.saveQuantity(typeId: .waistCircumference, unit: .inch(), value: 33)
-                    
-                let collection = await store.queryRestingHeart()
-                if let collection = collection {
-                  updateRestingHeartData(collection)
-                }
+                // This demonstrates writing to HealthKit.
+                await store.saveQuantity(typeId: .bodyMass, unit: .pound(), value: 172)
+                await store.saveQuantity(typeId: .waistCircumference, unit: .inch(), value: 34)
+            } else {
+                print("ContentView.requestAuth: failed")
             }
         } catch {
-            print("ContentView.getData: error = \(error)")
+            print("ContentView.requestAuth: error = \(error)")
         }
     }
  
-    private func updateRestingHeartData(_ collection: HKStatisticsCollection) {
-        for statistic in collection.statistics() {
-            var bpm = 0.0
-            if let quantity = statistic.averageQuantity() {
-                bpm = quantity.doubleValue(
-                    for: HKUnit.count().unitDivided(by: HKUnit.minute())
-                )
-            }
-            //let heartRate = HeartRate(bpm: bpm, date: statistic.startDate)
-            //heartData.append(heartRate)
-        }
-    }
-    
     var body: some View {
         TabView {
             CharacteristicsPage().tabItem {
@@ -60,9 +45,9 @@ struct ContentView: View {
             //UITabBar.appearance().backgroundColor = .systemGray5
             Task {
                 do {
-                    try await getData()
+                    try await requestAuth()
                 } catch {
-                    print("error getting data: \(error.localizedDescription)")
+                    print("ContentView onAppear: error \(error.localizedDescription)")
                 }
             }
         }
