@@ -1,7 +1,16 @@
 import SwiftUI
 
 struct CharacteristicsPage: View {
-    var data: Characteristics?;
+    @State private var data: Characteristics?
+    
+    private func loadData() async {
+        do {
+            let store = try HealthStore()
+            data = await store.queryCharacteristics()
+        } catch {
+            print("CharacteristicsPage.loadData: error = \(error)")
+        }
+    }
     var body: some View {
         NavigationView {
             VStack(alignment: .leading) {
@@ -13,7 +22,9 @@ struct CharacteristicsPage: View {
                     Text("Weight: \(dToI(data.bodyMass)) pounds")
                     Text("Last Heart Rate: \(data.heartRate) bpm")
                 }
-            }.navigationTitle("Characteristics")
+            }
+                .navigationTitle("Characteristics")
+                .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }
 }

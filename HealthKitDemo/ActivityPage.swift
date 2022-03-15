@@ -68,7 +68,18 @@ struct Activity: View {
 }
 
 struct ActivityPage: View {
-    var data: [HKActivitySummary]?;
+    @State private var data = [HKActivitySummary]()
+    
+    private func loadData() async {
+        data.removeAll()
+        do {
+            let store = try HealthStore()
+            data = await store.queryActivity() ?? []
+        } catch {
+            print("ActiviyPage.loadData: error = \(error)")
+        }
+    }
+    
     var body: some View {
         NavigationView {
             VStack(alignment: .leading) {
@@ -79,7 +90,9 @@ struct ActivityPage: View {
                 } else {
                     Text("No activity data was found.")
                 }
-            }.navigationTitle("Activity")
+            }
+                .navigationTitle("Activity")
+                .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }
 }

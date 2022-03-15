@@ -1,7 +1,25 @@
 import SwiftUI
 
 struct CyclingPage: View {
-    var data: [Cycling];
+    @State private var data = [Cycling]()
+    
+    private func loadData() async {
+        data.removeAll()
+        do {
+            let store = try HealthStore()
+            let collection = await store.queryCycling()
+            if let collection = collection {
+                for statistic in collection.statistics() {
+                    let miles = statistic.sumQuantity()?.doubleValue(for: .mile())
+                    let cycling = Cycling(distance: Double(miles ?? 0), date: statistic.startDate)
+                    data.append(cycling)
+                }
+            }
+        } catch {
+            print("CyclingPage.loadData: error = \(error)")
+        }
+    }
+    
     var body: some View {
         NavigationView {
             List(data.reversed(), id: \.id) { cycling in
@@ -10,7 +28,9 @@ struct CyclingPage: View {
                     Spacer()
                     Text(String(format: "%.1f miles", cycling.distance))
                 }
-            }.navigationTitle("Cycling Data")
+            }
+                .navigationTitle("Cycling Data")
+                .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }
 }

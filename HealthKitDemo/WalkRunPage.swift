@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct WalkRunPage: View {
-    @State private var stepData = [Steps]()
+    @State private var data = [Steps]()
     
     private func loadData() async {
+        data.removeAll()
         do {
             let store = try HealthStore()
             let collection = await store.querySteps()
@@ -11,17 +12,17 @@ struct WalkRunPage: View {
                 for statistic in collection.statistics() {
                     let count = statistic.sumQuantity()?.doubleValue(for: .count())
                     let step = Steps(count: Int(count ?? 0), date: statistic.startDate)
-                    stepData.append(step)
+                    data.append(step)
                 }
             }
         } catch {
-            print("ContentView.getData: error = \(error)")
+            print("WalkRunPage.loadData: error = \(error)")
         }
     }
     
     var body: some View {
         NavigationView {
-            List(stepData.reversed(), id: \.id) { steps in
+            List(data.reversed(), id: \.id) { steps in
                 HStack {
                     Text(steps.date, style: .date)
                     Spacer()
