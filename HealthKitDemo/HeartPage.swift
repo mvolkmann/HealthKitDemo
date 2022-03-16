@@ -15,6 +15,10 @@ struct HeartPage: View {
             typeId: .restingHeartRate,
             options: .discreteAverage
         )
+        let walkingData = await store.queryCollection(
+            typeId: .walkingHeartRateAverage,
+            options: .discreteAverage
+        )
         
         if let heartData = heartData, let restingData = restingData {
             let heartArr = heartData.statistics()

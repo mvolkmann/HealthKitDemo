@@ -12,15 +12,9 @@ class HealthStore {
         return HKCharacteristicType.characteristicType(forIdentifier: typeId)!
     }
     
-    func predicate(days: Int) -> NSPredicate {
-        let calendar = Calendar.current
-        let startDate = calendar.date(
-            byAdding: .day,
-            value: -(days - 1),
-            to: Date()
-        )
+    func daysAgoPredicate(_ days: Int) -> NSPredicate {
         return HKQuery.predicateForSamples(
-            withStart: startDate,
+            withStart: Date.daysAgo(days),
             end: nil, // runs through the current time
             options: .strictStartDate
         )
@@ -36,7 +30,7 @@ class HealthStore {
         return await withCheckedContinuation { continuation in
             let q = HKActivitySummaryQuery(
                 //TODO: Why do I need to ask for 8 days to get 7?
-                predicate: predicate(days: 8),
+                predicate: daysAgoPredicate( 8),
                 resultsHandler: {_, summaries, error in
                     if let error = error {
                         print("error = \(error.localizedDescription)")
@@ -92,7 +86,7 @@ class HealthStore {
     ) async -> HKStatisticsCollection? {
         let q = HKStatisticsCollectionQuery(
             quantityType: quantityType(typeId),
-            quantitySamplePredicate: predicate(days: 7), // over 7 days
+            quantitySamplePredicate: daysAgoPredicate(7),
             options: options,
             anchorDate: Date.mondayAt12AM(), // defined in DateExtensions.swift
             intervalComponents: DateComponents(day: 1) // 1 per day
