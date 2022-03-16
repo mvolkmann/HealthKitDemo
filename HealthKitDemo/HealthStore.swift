@@ -185,7 +185,6 @@ class HealthStore {
                 if let error = error {
                     continuation.resume(throwing: error)
                 } else if let results = results {
-                    print("HealthStore.queryWorkouts: results = \(results)")
                     continuation.resume(returning: results)
                 } else {
                     print("queryWorkouts: no results or error")

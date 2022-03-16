@@ -54,19 +54,15 @@ struct HeartPage: View {
         
         for days in 0...6 {
             let date = Date.daysAgo(days)
-            print("date = \(date)")
-                
             let averageBpm = quantityOnDate(heartArr, on: date)
             let restingBpm = quantityOnDate(restingArr, on: date)
             let walkingBpm = quantityOnDate(walkingArr, on: date)
-                
-            let heart = Heart(
+            data.append(Heart(
                 date: date,
                 averageBpm: averageBpm,
                 restingBpm: restingBpm,
                 walkingBpm: walkingBpm
-            )
-            data.append(heart)
+            ))
         }
     }
     
