@@ -6,7 +6,10 @@ struct WalkRunPage: View {
     private func loadData() async {
         data.removeAll()
         let store = HealthStore()
-        let collection = await store.querySteps()
+        let collection = await store.queryCollection(
+            typeId: .stepCount,
+            options: .cumulativeSum
+        )
         if let collection = collection {
             for statistic in collection.statistics() {
                 let count = statistic.sumQuantity()?.doubleValue(for: .count())

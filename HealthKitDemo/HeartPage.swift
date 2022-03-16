@@ -7,8 +7,14 @@ struct HeartPage: View {
     private func loadData() async {
         data.removeAll()
         let store = HealthStore()
-        let heartData = await store.queryHeart()
-        let restingData = await store.queryRestingHeart()
+        let heartData = await store.queryCollection(
+            typeId: .heartRate,
+            options: .discreteAverage
+        )
+        let restingData = await store.queryCollection(
+            typeId: .restingHeartRate,
+            options: .discreteAverage
+        )
         
         if let heartData = heartData, let restingData = restingData {
             let heartArr = heartData.statistics()

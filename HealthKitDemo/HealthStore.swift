@@ -112,13 +112,6 @@ class HealthStore {
         }
     }
     
-    func queryCycling() async -> HKStatisticsCollection? {
-        return await queryCollection(
-            typeId: .distanceCycling,
-            options: .cumulativeSum
-        )
-    }
-    
     /*
     private func observeFalls() {
         let falls = quantityType(.numberOfTimesFallen),
@@ -141,13 +134,6 @@ class HealthStore {
         store.execute(query)
     }
     */
-    
-    func queryHeart() async -> HKStatisticsCollection? {
-        return await queryCollection(
-            typeId: .heartRate,
-            options: .discreteAverage
-        )
-    }
     
     func queryQuantity(
         typeId: HKQuantityTypeIdentifier) async -> HKQuantity? {
@@ -185,20 +171,6 @@ class HealthStore {
                 store.execute(query)
             }
         }
-    
-    func queryRestingHeart() async -> HKStatisticsCollection? {
-        return await queryCollection(
-            typeId: .restingHeartRate,
-            options: .discreteAverage
-        )
-    }
-    
-    func querySteps() async -> HKStatisticsCollection? {
-        return await queryCollection(
-            typeId: .stepCount,
-            options: .cumulativeSum
-        )
-    }
     
     func queryWorkouts() async throws -> [HKSample]? {
         let workoutPredicate = HKQuery.predicateForWorkouts(with: .running)

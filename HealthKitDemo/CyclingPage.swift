@@ -6,7 +6,11 @@ struct CyclingPage: View {
     private func loadData() async {
         data.removeAll()
         
-        let collection = await HealthStore().queryCycling()
+        let store = HealthStore()
+        let collection = await store.queryCollection(
+            typeId: .distanceCycling,
+            options: .cumulativeSum
+        )
         if let collection = collection {
             for statistic in collection.statistics() {
                 let miles = statistic.sumQuantity()?.doubleValue(for: .mile())
