@@ -43,7 +43,9 @@ struct Activity: View {
         
         let size = 60.0
         return VStack(alignment: .leading) {
-            if let date = date { Text(date, style: .date) }
+            if let date = date {
+                Text(date.dayAfter, style: .date) // not sure why .dayAfter is needed
+            }
             HStack {
                 Rings(activitySummary: summary)
                     .frame(minWidth: size, maxWidth: size, minHeight: size, maxHeight: size)

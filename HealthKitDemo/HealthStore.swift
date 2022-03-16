@@ -29,8 +29,7 @@ class HealthStore {
     func queryActivity() async -> [HKActivitySummary]? {
         return await withCheckedContinuation { continuation in
             let q = HKActivitySummaryQuery(
-                //TODO: Why do I need to ask for 8 days to get 7?
-                predicate: daysAgoPredicate( 8),
+                predicate: daysAgoPredicate(7),
                 resultsHandler: {_, summaries, error in
                     if let error = error {
                         print("error = \(error.localizedDescription)")
@@ -226,6 +225,7 @@ class HealthStore {
                 quantityType(.restingHeartRate),
                 quantityType(.stepCount),
                 quantityType(.waistCircumference),
+                quantityType(.walkingHeartRateAverage),
             ]
         )
     }
