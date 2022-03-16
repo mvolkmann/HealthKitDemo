@@ -92,14 +92,21 @@ class HealthStore {
     ) async -> HKStatisticsCollection? {
         let q = HKStatisticsCollectionQuery(
             quantityType: quantityType(typeId),
-            quantitySamplePredicate: predicate(days: 7),
+            quantitySamplePredicate: predicate(days: 7), // over 7 days
             options: options,
-            anchorDate: Date.mondayAt12AM(),
-            intervalComponents: DateComponents(day: 1)
+            anchorDate: Date.mondayAt12AM(), // defined in DateExtensions.swift
+            intervalComponents: DateComponents(day: 1) // 1 per day
         )
         return await withCheckedContinuation { continuation in
             q.initialResultsHandler = { _, collection, error in
-                continuation.resume(returning: collection)
+                if let error = error {
+                    print("HealthStore.queryCollection: error \(error.localizedDescription)")
+                    //TODO: How can you return an empty collection when there is an error?
+                    //continuation.resume(returning: HKStatisticsCollection())
+                    continuation.resume(returning: nil)
+                } else {
+                    continuation.resume(returning: collection)
+                }
             }
             store.execute(q)
         }
@@ -193,6 +200,37 @@ class HealthStore {
         )
     }
     
+    func queryWorkouts() async throws -> [HKSample]? {
+        let workoutPredicate = HKQuery.predicateForWorkouts(with: .running)
+        let sourcePredicate = HKQuery.predicateForObjects(from: .default())
+        let compound = NSCompoundPredicate(
+            andPredicateWithSubpredicates: [workoutPredicate, sourcePredicate]
+        )
+        let sortDescriptor = NSSortDescriptor(
+            key: HKSampleSortIdentifierEndDate,
+            ascending: true
+        )
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: .workoutType(),
+                predicate: compound,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [sortDescriptor]
+            ) { _, results, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if let results = results {
+                    print("HealthStore.queryWorkouts: results = \(results)")
+                    continuation.resume(returning: results)
+                } else {
+                    print("queryWorkouts: no results or error")
+                    continuation.resume(returning: nil)
+                }
+            }
+            store.execute(query)
+        }
+    }
+    
     func requestAuthorization() async throws {
         // This throws if authorization could not be requested.
         // Not throwing is not an indication that the user
@@ -204,7 +242,8 @@ class HealthStore {
                 quantityType(.waistCircumference),
             ],
             read: [
-                HKObjectType.activitySummaryType(),
+                .activitySummaryType(),
+                .workoutType(),
                 characteristicType(.biologicalSex),
                 characteristicType(.dateOfBirth),
                 quantityType(.appleExerciseTime),
@@ -212,7 +251,10 @@ class HealthStore {
                 quantityType(.appleStandTime),
                 quantityType(.bodyMass),
                 quantityType(.distanceCycling),
+                quantityType(.distanceWalkingRunning),
                 quantityType(.heartRate),
+                quantityType(.heartRateVariabilitySDNN),
+                quantityType(.headphoneAudioExposure),
                 quantityType(.height),
                 quantityType(.numberOfTimesFallen),
                 quantityType(.restingHeartRate),

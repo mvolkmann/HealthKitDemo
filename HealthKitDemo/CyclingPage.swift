@@ -5,14 +5,27 @@ struct CyclingPage: View {
     
     private func loadData() async {
         data.removeAll()
-        let store = HealthStore()
-        let collection = await store.queryCycling()
+        
+        let collection = await HealthStore().queryCycling()
         if let collection = collection {
             for statistic in collection.statistics() {
                 let miles = statistic.sumQuantity()?.doubleValue(for: .mile())
                 let cycling = Cycling(date: statistic.startDate, distance: Double(miles ?? 0))
                 data.append(cycling)
             }
+        }
+    }
+    
+    private func loadWorkouts() async {
+        do {
+            let workouts = try await HealthStore().queryWorkouts()
+            if let workouts = workouts {
+                //TODO: Why isn't this getting any data?
+                print("CyclingPage.loadWorkouts: count = \(workouts.count)")
+                print("CyclingPage.loadWorkouts: workouts = \(workouts)")
+            }
+        } catch {
+            print("CyclingPage.loadWorkouts: error \(error.localizedDescription)")
         }
     }
     
@@ -26,7 +39,10 @@ struct CyclingPage: View {
                 }
             }
                 .navigationTitle("Cycling Data")
-                .task { await loadData() }
+                .task {
+                    await loadData()
+                    await loadWorkouts()
+                }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }
 }
