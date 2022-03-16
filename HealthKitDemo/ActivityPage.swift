@@ -41,7 +41,7 @@ struct Activity: View {
         
         let date = summary.dateComponents(for: .current).date
         
-        let size = 50.0
+        let size = 60.0
         return VStack(alignment: .leading) {
             if let date = date { Text(date, style: .date) }
             HStack {
@@ -57,7 +57,7 @@ struct Activity: View {
                     Text("STAND: \(dToI(standPercent))% " +
                          "\(dToI(stand))/\(dToI(standGoal)) hours")
                         .foregroundColor(Color(hex: standColor))
-                }.font(.system(size: 12))
+                }.font(.system(size: 16))
             }
         }
             .frame(maxWidth: .infinity)

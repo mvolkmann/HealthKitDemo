@@ -4,7 +4,7 @@ import HealthKit
 class HealthStore {
     // This assumes that HKHealthStore.isHealthDataAvailable()
     // has already been checked.
-    var hkStore = HKHealthStore()
+    var store = HKHealthStore()
     
     private func characteristicType(
         _ typeId: HKCharacteristicTypeIdentifier
@@ -13,16 +13,15 @@ class HealthStore {
     }
     
     func predicate(days: Int) -> NSPredicate {
-        let endDate = Date()
         let calendar = Calendar.current
         let startDate = calendar.date(
             byAdding: .day,
             value: -(days - 1),
-            to: endDate
+            to: Date()
         )
         return HKQuery.predicateForSamples(
             withStart: startDate,
-            end: endDate,
+            end: nil, // runs through the current time
             options: .strictStartDate
         )
     }
@@ -47,7 +46,7 @@ class HealthStore {
                     }
                 }
             )
-            hkStore.execute(q)
+            store.execute(q)
         }
     }
     
@@ -58,14 +57,14 @@ class HealthStore {
     func queryCharacteristics() async -> Characteristics? {
         var dateOfBirth: Date? = nil
         do {
-            dateOfBirth = try hkStore.dateOfBirthComponents().date
+            dateOfBirth = try store.dateOfBirthComponents().date
         } catch {
             // do nothing
         }
             
         var sex = HKBiologicalSex.notSet
         do {
-            sex = try hkStore.biologicalSex().biologicalSex
+            sex = try store.biologicalSex().biologicalSex
         } catch {
             // do nothing
         }
@@ -102,7 +101,7 @@ class HealthStore {
             q.initialResultsHandler = { _, collection, error in
                 continuation.resume(returning: collection)
             }
-            hkStore.execute(q)
+            store.execute(q)
         }
     }
     
@@ -112,6 +111,29 @@ class HealthStore {
             options: .cumulativeSum
         )
     }
+    
+    /*
+    private func observeFalls() {
+        let falls = quantityType(.numberOfTimesFallen),
+        let query = HKObserverQuery(sampleType: falls, predicate: nil) { query, handler, error in
+            self.checkNewFalls()
+            handler()
+        }
+        store.execute(query)
+    }
+    
+    private func checkNewFalls() {
+        let falls = quantityType(.numberOfTimesFallen),
+        let query = HKObserverQuery(sampleType: falls, predicate: nil) { query, handler, error in
+        let query = HKAnchoredObjectQuery(type: falls, predicate: nil, anchor: lastAnchor, limit: HKObjectQueryNoLimit) { query, sample, deleted, anchor, error in
+            defer { self.lastAnchor = anchor }
+            guard self.lastAnchor != nil else { return }
+            guard sample?.isEmpty == false else { return }
+            self.presentFallAlert()
+        }
+        store.execute(query)
+    }
+    */
     
     func queryHeart() async -> HKStatisticsCollection? {
         return await queryCollection(
@@ -153,7 +175,7 @@ class HealthStore {
                         continuation.resume(returning: nil)
                     }
                 }
-                hkStore.execute(query)
+                store.execute(query)
             }
         }
     
@@ -175,7 +197,7 @@ class HealthStore {
         // This throws if authorization could not be requested.
         // Not throwing is not an indication that the user
         // granted all the requested permissions.
-        try await hkStore.requestAuthorization(
+        try await store.requestAuthorization(
             // The app can update these.
             toShare: [
                 quantityType(.bodyMass),
@@ -192,6 +214,7 @@ class HealthStore {
                 quantityType(.distanceCycling),
                 quantityType(.heartRate),
                 quantityType(.height),
+                quantityType(.numberOfTimesFallen),
                 quantityType(.restingHeartRate),
                 quantityType(.stepCount),
                 quantityType(.waistCircumference),
@@ -229,7 +252,7 @@ class HealthStore {
         )
         
         return try await withCheckedThrowingContinuation { continuation in
-            hkStore.save(sample) { success, error in
+            store.save(sample) { success, error in
                 if let error = error {
                     continuation.resume(throwing: error)
                 } else {
