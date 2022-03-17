@@ -57,6 +57,7 @@ struct Heart: Identifiable {
     let date: Date
     let averageBpm: Double
     let restingBpm: Double
+    let variability: Double
     let walkingBpm: Double
 }
 

@@ -141,7 +141,6 @@ class HealthStore {
                 let query = HKSampleQuery(
                     sampleType: quantityType(typeId),
                     predicate: nil,
-                    //predicate: predicate(days: 1), //TODO: Why doesn't this work?
                     limit: 1,
                     sortDescriptors: sortDescriptors
                 ) {

@@ -5,8 +5,8 @@ private func quantityOnDate(_ statistics: [HKStatistics], on date: Date) -> Doub
     let statistic = statistics.first(
         where: {element in element.startDate <= date && date < element.endDate}
     )
-    if let statistic = statistic, let quantity = statistic.averageQuantity() {
-        return quantity.doubleValue(
+    if let statistic = statistic, let value = statistic.averageQuantity() {
+        return value.doubleValue(
             for: HKUnit.count().unitDivided(by: HKUnit.minute())
         )
     } else {
@@ -29,6 +29,7 @@ struct HeartPage: View {
             print("HeartPage.loadData: failed to get heartRate data")
             return
         }
+        let heartArr = heartData.statistics()
                   
         let restingData = await store.queryCollection(
             typeId: .restingHeartRate,
@@ -38,6 +39,7 @@ struct HeartPage: View {
             print("HeartPage.loadData: failed to get restingHeartRate data")
             return
         }
+        let restingArr = restingData.statistics()
                   
         let walkingData = await store.queryCollection(
             typeId: .walkingHeartRateAverage,
@@ -47,20 +49,43 @@ struct HeartPage: View {
             print("HeartPage.loadData: failed to get walkingHeartRateAverage data")
             return
         }
-        
-        let heartArr = heartData.statistics()
-        let restingArr = restingData.statistics()
         let walkingArr = walkingData.statistics()
+        
+        //TODO: Why can I get a single value for an unspecified date,
+        //TODO: but queryCollection below returns 0.0 for every day in the range?
+        let variability = await store.queryQuantity(typeId: .heartRateVariabilitySDNN)
+        print("variability = \(variability!)")
+        
+        let variabilityData = await store.queryCollection(
+            typeId: .heartRateVariabilitySDNN,
+            //options: .discreteMax
+            options: []
+        )
+        guard let variabilityData = variabilityData else {
+            print("HeartPage.loadData: failed to get heartRateVariabilitySDNN data")
+            return
+        }
+        let variabilityArr = variabilityData.statistics()
+        /*
+        for obj in variabilityArr {
+            print("startDate = \(obj.startDate)")
+            print("endDate = \(obj.endDate)")
+        }
+        */
         
         for days in 0...6 {
             let date = Date.daysAgo(days)
             let averageBpm = quantityOnDate(heartArr, on: date)
             let restingBpm = quantityOnDate(restingArr, on: date)
             let walkingBpm = quantityOnDate(walkingArr, on: date)
+            //TODO: Why is the variability for every day 0.0?
+            let variability = quantityOnDate(variabilityArr, on: date)
+            print("variability = \(variability)")
             data.append(Heart(
                 date: date,
                 averageBpm: averageBpm,
                 restingBpm: restingBpm,
+                variability: variability,
                 walkingBpm: walkingBpm
             ))
         }
@@ -81,6 +106,9 @@ struct HeartPage: View {
                         }
                         if heart.walkingBpm > 0 {
                             Text("\(dToI(heart.walkingBpm)) walking")
+                        }
+                        if heart.variability > 0 {
+                            Text("\(dToI(heart.variability)) var")
                         }
                     }
                 }
