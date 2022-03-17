@@ -61,8 +61,11 @@ struct Heart: Identifiable {
     let walkingBpm: Double
 }
 
-struct Steps: Identifiable {
+struct WalkRun: Identifiable {
     let id = UUID()
     let date: Date
-    let count: Int
+    let flightsClimbed: Int
+    //let standHours: Int
+    let standTime: Int
+    let stepCount: Int
 }

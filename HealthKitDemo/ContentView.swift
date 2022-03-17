@@ -79,7 +79,9 @@ struct ContentView: View {
             case .notAvailable:
                Text("HealthKit is not available on this device.")
             }
-        }.task { await check() }
+        }
+            .background(Color(hex: 0x3cb4e5))
+            .task { await check() }
     }
 }
 

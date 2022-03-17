@@ -1,31 +1,83 @@
 import SwiftUI
+import HealthKit
 
 struct WalkRunPage: View {
-    @State private var data = [Steps]()
+    @State private var data = [WalkRun]()
     
     private func loadData() async {
         data.removeAll()
         let store = HealthStore()
-        let collection = await store.queryCollection(
+        
+        let flightsClimbedCollection = await store.queryCollection(
+            typeId: .flightsClimbed,
+            options: .cumulativeSum
+        )
+        guard let flightsClimbedCollection = flightsClimbedCollection else {
+            print("WalkRunPage.loadData: failed to get flightsClimbed data")
+            return
+        }
+        let flightsClimbedArr = flightsClimbedCollection.statistics()
+        
+        //TODO: How can you query a category value over a date range?
+        //TODO: See HealthStore.queryCategoryCollection which isn't working.
+        //TODO: Note that you are already displaying STAND hours in ActivityPage!`
+        /*
+        let standHourCollection = await store.queryCategoryCollection(
+            typeId: HKCategoryTypeIdentifier.appleStandHour,
+            options: .cumulativeSum
+        )
+        guard let standHourCollection = standHourCollection else {
+            print("WalkRunPage.loadData: failed to get appleStandHour data")
+            return
+        }
+        let standHourArr = standHourCollection.statistics()
+        */
+        
+        let standTimeCollection = await store.queryCollection(
+            typeId: .appleStandTime,
+            options: .cumulativeSum
+        )
+        guard let standTimeCollection = standTimeCollection else {
+            print("WalkRunPage.loadData: failed to get appleStandTime data")
+            return
+        }
+        let standTimeArr = standTimeCollection.statistics()
+        
+        let stepCountCollection = await store.queryCollection(
             typeId: .stepCount,
             options: .cumulativeSum
         )
-        if let collection = collection {
-            for statistic in collection.statistics() {
-                let count = statistic.sumQuantity()?.doubleValue(for: .count())
-                let step = Steps(date: statistic.startDate, count: Int(count ?? 0))
-                data.append(step)
-            }
+        guard let stepCountCollection = stepCountCollection else {
+            print("WalkRunPage.loadData: failed to get standTime data")
+            return
+        }
+        let stepCountArr = stepCountCollection.statistics()
+        
+        for days in 0...6 {
+            let date = Date.daysAgo(days)
+            let flightsClimbed = dToI(quantityOnDate(flightsClimbedArr, on: date))
+            //let standHours = quantityOnDate(standHourArr, on: date)
+            let standTime = dToI(quantityOnDate(standTimeArr, on: date))
+            let stepCount = dToI(quantityOnDate(stepCountArr, on: date))
+            data.append(WalkRun(
+                date: date,
+                flightsClimbed: flightsClimbed,
+                //standHours: standHours,
+                standTime: standTime,
+                stepCount: stepCount
+            ))
         }
     }
     
     var body: some View {
         NavigationView {
-            List(data.reversed(), id: \.id) { steps in
-                HStack {
-                    Text(steps.date, style: .date)
-                    Spacer()
-                    Text("\(steps.count) steps")
+            List(data.reversed(), id: \.id) { walkRun in
+                VStack {
+                    Text(walkRun.date, style: .date)
+                    Text("Flights Climbed: \(walkRun.flightsClimbed)")
+                    //Text("Stand Hours: \(walkRun.standHours)")
+                    Text("Stand Time: \(walkRun.standTime)")
+                    Text("Step Count: \(walkRun.stepCount)")
                 }
             }
                 .navigationTitle("Step Data")

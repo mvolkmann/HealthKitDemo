@@ -6,6 +6,12 @@ class HealthStore {
     // has already been checked.
     var store = HKHealthStore()
     
+    private func categoryType(
+        _ typeId: HKCategoryTypeIdentifier
+    ) -> HKCategoryType {
+        return HKCategoryType.categoryType(forIdentifier: typeId)!
+    }
+    
     private func characteristicType(
         _ typeId: HKCharacteristicTypeIdentifier
     ) -> HKCharacteristicType {
@@ -78,6 +84,35 @@ class HealthStore {
             waistInMeters: quantityDoubleValue(waist, unit: .meter())
         )
     }
+    
+    //TODO: This isn't working yet.
+    /*
+    func queryCategoryCollection(
+        typeId: HKCategoryTypeIdentifier,
+        options: HKStatisticsOptions
+    ) async -> HKStatisticsCollection? {
+        let q = HKCategoryCollectionQuery(
+            quantityType: categoryType(typeId),
+            quantitySamplePredicate: daysAgoPredicate(7),
+            options: options,
+            anchorDate: Date.mondayAt12AM(), // defined in DateExtensions.swift
+            intervalComponents: DateComponents(day: 1) // 1 per day
+        )
+        return await withCheckedContinuation { continuation in
+            q.initialResultsHandler = { _, collection, error in
+                if let error = error {
+                    print("HealthStore.queryCollection: error \(error.localizedDescription)")
+                    //TODO: How can you return an empty collection when there is an error?
+                    //continuation.resume(returning: HKStatisticsCollection())
+                    continuation.resume(returning: nil)
+                } else {
+                    continuation.resume(returning: collection)
+                }
+            }
+            store.execute(q)
+        }
+    }
+    */
     
     func queryCollection(
         typeId: HKQuantityTypeIdentifier,

@@ -19,7 +19,13 @@ struct CharacteristicsPage: View {
                     Text("Last Heart Rate: \(data.heartRate) bpm")
                 }
             }
-                .navigationTitle("Characteristics")
+                .navigationBarTitle("Characteristics")
+                .navigationBarItems(
+                    leading: Button("Left") { print("pressed Left")}
+                        .foregroundColor(.white),
+                    trailing: Button("Right") { print("pressed Right")}
+                        .foregroundColor(.white)
+                )
                 .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }

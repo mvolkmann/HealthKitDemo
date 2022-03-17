@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A42C12F27E3792A00BE3676 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A42C12E27E3792A00BE3676 /* AppDelegate.swift */; };
 		1AD127A227DFC69400AD4FCE /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD127A127DFC69400AD4FCE /* util.swift */; };
 		1AD95D2627DA9DB50068979E /* HealthKitDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */; };
 		1AD95D2827DA9DB50068979E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D2727DA9DB50068979E /* ContentView.swift */; };
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1A42C12E27E3792A00BE3676 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1AD127A127DFC69400AD4FCE /* util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
 		1AD95D2227DA9DB50068979E /* HealthKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitDemoApp.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 			children = (
 				1AD95D8927DAA4E80068979E /* HealthKitDemo.entitlements */,
 				1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */,
+				1A42C12E27E3792A00BE3676 /* AppDelegate.swift */,
 				1AD95D2727DA9DB50068979E /* ContentView.swift */,
 				1AD95DA127DFA2F00068979E /* WalkRunPage.swift */,
 				1AD95D9F27DFA2D10068979E /* HeartPage.swift */,
@@ -308,6 +311,7 @@
 				1AD95DA227DFA2F00068979E /* WalkRunPage.swift in Sources */,
 				1AD95D2827DA9DB50068979E /* ContentView.swift in Sources */,
 				1AD95D9E27DFA2A30068979E /* CyclingPage.swift in Sources */,
+				1A42C12F27E3792A00BE3676 /* AppDelegate.swift in Sources */,
 				1AD127A227DFC69400AD4FCE /* util.swift in Sources */,
 				1AD95D8E27DAA62A0068979E /* DateExtensions.swift in Sources */,
 				1AD95D9627DBBF120068979E /* RuntimeError.swift in Sources */,
