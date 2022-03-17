@@ -62,11 +62,11 @@ struct HeartPage: View {
         
         for days in 0...6 {
             let date = Date.daysAgo(days)
-            let averageBpm = quantityOnDate(heartArr, on: date)
-            let restingBpm = quantityOnDate(restingArr, on: date)
-            let walkingBpm = quantityOnDate(walkingArr, on: date)
+            let averageBpm = averagePerMinuteOnDate(heartArr, on: date)
+            let restingBpm = averagePerMinuteOnDate(restingArr, on: date)
+            let walkingBpm = averagePerMinuteOnDate(walkingArr, on: date)
             //TODO: Why is the variability for every day 0.0?
-            let variability = quantityOnDate(variabilityArr, on: date)
+            let variability = averagePerMinuteOnDate(variabilityArr, on: date)
             print("variability = \(variability)")
             data.append(Heart(
                 date: date,
@@ -100,7 +100,7 @@ struct HeartPage: View {
                     }
                 }
             }
-                .navigationTitle("Heart Data")
+                .navigationBarTitle("Heart Data")
                 .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }

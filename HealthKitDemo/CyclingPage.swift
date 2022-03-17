@@ -42,7 +42,7 @@ struct CyclingPage: View {
                     Text(String(format: "%.1f miles", cycling.distance))
                 }
             }
-                .navigationTitle("Cycling Data")
+                .navigationBarTitle("Cycling Data")
                 .task {
                     await loadData()
                     await loadWorkouts()

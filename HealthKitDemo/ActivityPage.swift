@@ -89,7 +89,7 @@ struct ActivityPage: View {
                     Text("No activity data was found.")
                 }
             }
-                .navigationTitle("Activity")
+                .navigationBarTitle("Activity")
                 .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }

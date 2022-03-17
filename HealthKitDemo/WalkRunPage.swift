@@ -48,17 +48,17 @@ struct WalkRunPage: View {
             options: .cumulativeSum
         )
         guard let stepCountCollection = stepCountCollection else {
-            print("WalkRunPage.loadData: failed to get standTime data")
+            print("WalkRunPage.loadData: failed to get stepCount data")
             return
         }
         let stepCountArr = stepCountCollection.statistics()
         
         for days in 0...6 {
             let date = Date.daysAgo(days)
-            let flightsClimbed = dToI(quantityOnDate(flightsClimbedArr, on: date))
-            //let standHours = quantityOnDate(standHourArr, on: date)
-            let standTime = dToI(quantityOnDate(standTimeArr, on: date))
-            let stepCount = dToI(quantityOnDate(stepCountArr, on: date))
+            let flightsClimbed = dToI(sumCountOnDate(flightsClimbedArr, on: date))
+            //let standHours = sumOnDate(standHourArr, on: date)
+            let standTime = dToI(minutesOnDate(standTimeArr, on: date))
+            let stepCount = dToI(sumCountOnDate(stepCountArr, on: date))
             data.append(WalkRun(
                 date: date,
                 flightsClimbed: flightsClimbed,
@@ -71,16 +71,16 @@ struct WalkRunPage: View {
     
     var body: some View {
         NavigationView {
-            List(data.reversed(), id: \.id) { walkRun in
-                VStack {
-                    Text(walkRun.date, style: .date)
+            List(data, id: \.id) { walkRun in
+                VStack(alignment: .leading) {
+                    Text(walkRun.date, style: .date).bold()
                     Text("Flights Climbed: \(walkRun.flightsClimbed)")
                     //Text("Stand Hours: \(walkRun.standHours)")
-                    Text("Stand Time: \(walkRun.standTime)")
+                    Text("Stand Time: \(walkRun.standTime) minutes")
                     Text("Step Count: \(walkRun.stepCount)")
                 }
             }
-                .navigationTitle("Step Data")
+                .navigationBarTitle("Walking/Running Data")
                 .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?
     }
