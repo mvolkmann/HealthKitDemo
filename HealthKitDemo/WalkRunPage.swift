@@ -71,15 +71,25 @@ struct WalkRunPage: View {
     
     var body: some View {
         NavigationView {
-            List(data, id: \.id) { walkRun in
-                VStack(alignment: .leading) {
-                    Text(walkRun.date, style: .date).bold()
-                    Text("Flights Climbed: \(walkRun.flightsClimbed)")
-                    //Text("Stand Hours: \(walkRun.standHours)")
-                    Text("Stand Time: \(walkRun.standTime) minutes")
-                    Text("Step Count: \(walkRun.stepCount)")
+            VStack {
+                Spacer().frame(height: 20)
+                List(data, id: \.id) { walkRun in
+                    VStack(alignment: .leading) {
+                        Text(walkRun.date, style: .date)
+                            .foregroundColor(Color("PrimaryColor"))
+                            .bold()
+                        Text("Flights Climbed: \(walkRun.flightsClimbed)")
+                        //Text("Stand Hours: \(walkRun.standHours)")
+                        Text("Stand Time: \(walkRun.standTime) minutes")
+                        Text("Step Count: \(walkRun.stepCount)")
+                    }
+                        .foregroundColor(.white)
+                        .listRowBackground(Color("SecondaryColor"))
+                        .listRowInsets(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
+                        .padding(0)
                 }
             }
+                .background(Color("defaultBgColor"))
                 .navigationBarTitle("Walking/Running Data")
                 .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?

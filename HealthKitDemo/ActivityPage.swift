@@ -81,6 +81,7 @@ struct ActivityPage: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading) {
+                Spacer().frame(height: 20)
                 if let data = data {
                     List(data.reversed(), id: \.self) { activitySummary in
                         Activity(summary: activitySummary)
@@ -89,6 +90,7 @@ struct ActivityPage: View {
                     Text("No activity data was found.")
                 }
             }
+                .background(Color("defaultBgColor"))
                 .navigationBarTitle("Activity")
                 .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?

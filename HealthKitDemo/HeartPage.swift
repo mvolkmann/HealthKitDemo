@@ -80,26 +80,30 @@ struct HeartPage: View {
     
     var body: some View {
         NavigationView {
-            List(data, id: \.id) { heart in
-                VStack(alignment: .leading) {
-                    Text(heart.date, style: .date).bold()
-                    HStack {
-                        Text("BPM:")
-                        if heart.averageBpm > 0 {
-                            Text("\(dToI(heart.averageBpm)) avg")
-                        }
-                        if heart.restingBpm > 0 {
-                            Text("\(dToI(heart.restingBpm)) resting")
-                        }
-                        if heart.walkingBpm > 0 {
-                            Text("\(dToI(heart.walkingBpm)) walking")
-                        }
-                        if heart.variability > 0 {
-                            Text("\(dToI(heart.variability)) var")
+            VStack {
+                Spacer().frame(height: 20)
+                List(data, id: \.id) { heart in
+                    VStack(alignment: .leading) {
+                        Text(heart.date, style: .date).bold()
+                        HStack {
+                            Text("BPM:")
+                            if heart.averageBpm > 0 {
+                                Text("\(dToI(heart.averageBpm)) avg")
+                            }
+                            if heart.restingBpm > 0 {
+                                Text("\(dToI(heart.restingBpm)) resting")
+                            }
+                            if heart.walkingBpm > 0 {
+                                Text("\(dToI(heart.walkingBpm)) walking")
+                            }
+                            if heart.variability > 0 {
+                                Text("\(dToI(heart.variability)) var")
+                            }
                         }
                     }
                 }
             }
+                .background(Color("defaultBgColor"))
                 .navigationBarTitle("Heart Data")
                 .task { await loadData() }
         }.navigationViewStyle(.stack) //TODO: Why needed?

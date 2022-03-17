@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1A42C12F27E3792A00BE3676 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A42C12E27E3792A00BE3676 /* AppDelegate.swift */; };
+		1A42C13227E3CE8F00BE3676 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1A42C13127E3CE8F00BE3676 /* LaunchScreen.storyboard */; };
 		1AD127A227DFC69400AD4FCE /* util.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD127A127DFC69400AD4FCE /* util.swift */; };
 		1AD95D2627DA9DB50068979E /* HealthKitDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */; };
 		1AD95D2827DA9DB50068979E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD95D2727DA9DB50068979E /* ContentView.swift */; };
@@ -48,6 +49,8 @@
 
 /* Begin PBXFileReference section */
 		1A42C12E27E3792A00BE3676 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1A42C13027E3CDCF00BE3676 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1A42C13127E3CE8F00BE3676 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1AD127A127DFC69400AD4FCE /* util.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = util.swift; sourceTree = "<group>"; };
 		1AD95D2227DA9DB50068979E /* HealthKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitDemoApp.swift; sourceTree = "<group>"; };
@@ -123,11 +126,13 @@
 		1AD95D2427DA9DB50068979E /* HealthKitDemo */ = {
 			isa = PBXGroup;
 			children = (
+				1A42C13027E3CDCF00BE3676 /* Info.plist */,
 				1AD95D8927DAA4E80068979E /* HealthKitDemo.entitlements */,
 				1AD95D2527DA9DB50068979E /* HealthKitDemoApp.swift */,
 				1A42C12E27E3792A00BE3676 /* AppDelegate.swift */,
 				1AD95D2727DA9DB50068979E /* ContentView.swift */,
 				1AD95DA127DFA2F00068979E /* WalkRunPage.swift */,
+				1A42C13127E3CE8F00BE3676 /* LaunchScreen.storyboard */,
 				1AD95D9F27DFA2D10068979E /* HeartPage.swift */,
 				1AD95D9D27DFA2A30068979E /* CyclingPage.swift */,
 				1AD95D9B27DFA2580068979E /* CharacteristicsPage.swift */,
@@ -281,6 +286,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A42C13227E3CE8F00BE3676 /* LaunchScreen.storyboard in Resources */,
 				1AD95D2D27DA9DB70068979E /* Preview Assets.xcassets in Resources */,
 				1AD95D2A27DA9DB70068979E /* Assets.xcassets in Resources */,
 			);
@@ -485,11 +491,12 @@
 				DEVELOPMENT_TEAM = 4BG3523GAZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthKitDemo/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app needs to access your health data.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app needs to update your health data.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -517,11 +524,12 @@
 				DEVELOPMENT_TEAM = 4BG3523GAZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HealthKitDemo/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app needs to access your health data.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app needs to update your health data.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
